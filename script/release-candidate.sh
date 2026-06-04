@@ -212,12 +212,13 @@ log_sep
 log_info "Phase 3 — Version bump + tag + push"
 echo ""
 
-# Reload settings in case a merge changed them
-source "${_SETTINGS_FILE}"
-
-MAJOR="${VERSION_MAJOR}"
-MINOR="${VERSION_MINOR}"
-BUILD="${VERSION_BUILD_NUMBER}"
+# Read version from committed VERSION file (not from gitignored settings)
+_VERSION_FILE="${SCRIPT_DIR}/VERSION"
+[[ -f "${_VERSION_FILE}" ]] || { log_error "script/VERSION file not found."; exit 1; }
+_VERSION_STRING=$(cat "${_VERSION_FILE}" | tr -d '[:space:]')
+MAJOR=$(echo "${_VERSION_STRING}" | cut -d. -f1)
+MINOR=$(echo "${_VERSION_STRING}" | cut -d. -f2)
+BUILD=$(echo "${_VERSION_STRING}" | cut -d. -f3)
 CURRENT_VERSION="v${MAJOR}.${MINOR}.${BUILD}"
 NEW_MINOR=$((MINOR + 1))
 NEW_VERSION="v${MAJOR}.${NEW_MINOR}.${BUILD}"
@@ -243,21 +244,23 @@ else
 fi
 echo ""
 
-# Bump version in settings.dev.txt
-log_info "Updating version in settings.dev.txt..."
-sed -i "s/VERSION_MINOR=\"${MINOR}\"/VERSION_MINOR=\"${NEW_MINOR}\"/" "${_SETTINGS_FILE}"
-log_success "settings.dev.txt  VERSION_MINOR → ${NEW_MINOR}"
+# Bump version in committed VERSION file
+log_info "Updating script/VERSION..."
+echo "${MAJOR}.${NEW_MINOR}.${BUILD}" > "${_VERSION_FILE}"
+log_success "script/VERSION → ${MAJOR}.${NEW_MINOR}.${BUILD}"
 
-# Sync all three version vars into settings.prod.txt
+# Sync version vars into gitignored settings files (for app runtime use)
 _PROD_SETTINGS="${SCRIPT_DIR}/settings.prod.txt"
-if [[ -f "${_PROD_SETTINGS}" ]]; then
-  log_info "Syncing version into settings.prod.txt..."
-  sed -i "s/VERSION_MAJOR=\"[^\"]*\"/VERSION_MAJOR=\"${MAJOR}\"/"           "${_PROD_SETTINGS}"
-  sed -i "s/VERSION_MINOR=\"[^\"]*\"/VERSION_MINOR=\"${NEW_MINOR}\"/"       "${_PROD_SETTINGS}"
-  sed -i "s/VERSION_BUILD_NUMBER=\"[^\"]*\"/VERSION_BUILD_NUMBER=\"${BUILD}\"/" "${_PROD_SETTINGS}"
-  log_success "settings.prod.txt VERSION_MINOR → ${NEW_MINOR}"
+for _SF in "${_SETTINGS_FILE}" "${_PROD_SETTINGS}"; do
+  [[ -f "${_SF}" ]] || continue
+  sed -i "s/VERSION_MAJOR=\"[^\"]*\"/VERSION_MAJOR=\"${MAJOR}\"/"               "${_SF}"
+  sed -i "s/VERSION_MINOR=\"[^\"]*\"/VERSION_MINOR=\"${NEW_MINOR}\"/"           "${_SF}"
+  sed -i "s/VERSION_BUILD_NUMBER=\"[^\"]*\"/VERSION_BUILD_NUMBER=\"${BUILD}\"/" "${_SF}"
+done
+log_success "Version synced into settings files (not committed — gitignored)"
 
-  # Check for settings drift — warn if dev has keys not present in prod
+# Check for settings drift — warn if dev has keys not present in prod
+if [[ -f "${_PROD_SETTINGS}" ]]; then
   _DEV_KEYS=$(grep -E '^[A-Z_]+=' "${_SETTINGS_FILE}" | cut -d'=' -f1 | sort)
   _PROD_KEYS=$(grep -E '^[A-Z_]+=' "${_PROD_SETTINGS}" | cut -d'=' -f1 | sort)
   _MISSING_IN_PROD=$(comm -23 <(echo "$_DEV_KEYS") <(echo "$_PROD_KEYS"))
@@ -270,12 +273,10 @@ if [[ -f "${_PROD_SETTINGS}" ]]; then
   else
     log_success "settings.dev.txt and settings.prod.txt keys are in sync"
   fi
-else
-  log_warn "settings.prod.txt not found — skipping prod sync"
 fi
 
-# Commit version bump (both settings files)
-git add "${_SETTINGS_FILE}" "${_PROD_SETTINGS}"
+# Commit VERSION file only (settings are gitignored)
+git add "${_VERSION_FILE}"
 git commit -m "Release: bump to ${NEW_VERSION}"
 log_success "Committed version bump"
 
