@@ -236,7 +236,8 @@ echo ""
 log_info "Checking push access to origin..."
 _SSH_OK=false
 _GIT_CHECK=$(git ls-remote origin HEAD 2>&1)
-if echo "$_GIT_CHECK" | grep -qE "^[0-9a-f]{40}"; then
+_GIT_EXIT=$?
+if [[ $_GIT_EXIT -eq 0 ]]; then
   _SSH_OK=true
   log_success "Push access to origin confirmed"
 else
