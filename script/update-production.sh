@@ -26,6 +26,11 @@ _SETTINGS_FILE="${SCRIPT_DIR}/settings.prod.txt"
 [[ -f "${_SETTINGS_FILE}" ]] || { echo "ERROR: settings file not found: ${_SETTINGS_FILE}" >&2; exit 1; }
 source "${_SETTINGS_FILE}"
 
+# Force git to use the deploy key, bypassing ~/.ssh/config re-parse behaviour
+if [[ -n "${GITHUB_DEPLOY_KEY:-}" && -f "${GITHUB_DEPLOY_KEY}" ]]; then
+  export GIT_SSH_COMMAND="ssh -i ${GITHUB_DEPLOY_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+fi
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 log_info() { echo "[INFO] $*"; }
