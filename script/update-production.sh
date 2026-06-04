@@ -210,9 +210,13 @@ if ! prompt_continue "Frontend started. Can you reach it? Continue?"; then
   exit 1
 fi
 
-log_info "Stopping production backend service..."
-sudo systemctl stop "${SITE_NAME}"
-log_success "Backend stopped"
+log_info "Stopping production backend service (if running)..."
+if systemctl is-active --quiet "${SITE_NAME}" 2>/dev/null; then
+  sudo systemctl stop "${SITE_NAME}"
+  log_success "Backend stopped"
+else
+  log_info "Service ${SITE_NAME} not active — skipping stop"
+fi
 
 log_info "Starting Flask dev server on port ${BACKEND_PORT}..."
 "${SCRIPT_DIR}/run-backend.sh" &
