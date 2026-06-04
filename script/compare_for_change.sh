@@ -5,7 +5,7 @@ set -e
 # Runs in prod/ worktree only
 #
 # Phases:
-#   0. Merge dev → master  (replaces the manual Bitbucket PR step)
+#   0. Merge dev → main  (replaces the manual Bitbucket PR step)
 #   1. Pre-update validation
 #   2. Code update + test
 #   3. Install frontend + restart backend
@@ -79,10 +79,10 @@ fi
 log_success "Working directory is clean"
 
 # ============================================================================
-# PHASE 0: Merge dev → master
+# PHASE 0: Merge dev → main
 # ============================================================================
 
-log_phase "PHASE 0: Merge dev → master"
+log_phase "PHASE 0: Merge dev → main"
 
 log_info "Fetching all remotes..."
 git fetch --all --prune 2>&1 | sed 's/^/  /'
@@ -94,25 +94,25 @@ if ! git show-ref --verify --quiet refs/heads/dev; then
   exit 1
 fi
 
-UNMERGED=$(git log master..dev --oneline 2>/dev/null || true)
+UNMERGED=$(git log main..dev --oneline 2>/dev/null || true)
 
 if [[ -z "$UNMERGED" ]]; then
-  log_success "master is already up to date with dev — no merge needed"
+  log_success "main is already up to date with dev — no merge needed"
 else
   COMMIT_COUNT=$(echo "$UNMERGED" | wc -l | tr -d ' ')
-  log_info "${COMMIT_COUNT} commit(s) in dev not yet in master:"
+  log_info "${COMMIT_COUNT} commit(s) in dev not yet in main:"
   echo ""
-  git log master..dev --oneline --format="  %C(yellow)%h%Creset  %ad  %s" --date=short 2>/dev/null \
+  git log main..dev --oneline --format="  %C(yellow)%h%Creset  %ad  %s" --date=short 2>/dev/null \
     || echo "$UNMERGED" | sed 's/^/  /'
   echo ""
 
-  if ! confirm "Merge these commits from dev into master now?"; then
-    log_error "Cannot deploy without merging dev into master. Aborting."
+  if ! confirm "Merge these commits from dev into main now?"; then
+    log_error "Cannot deploy without merging dev into main. Aborting."
     exit 1
   fi
 
   echo ""
-  log_info "Merging dev into master..."
+  log_info "Merging dev into main..."
 
   if ! git merge dev --no-edit; then
     echo ""
@@ -125,12 +125,12 @@ else
     exit 1
   fi
 
-  log_success "Merged dev into master"
+  log_success "Merged dev into main"
   echo ""
 
-  log_info "Pushing master to origin..."
-  git push origin master
-  log_success "master pushed to origin"
+  log_info "Pushing main to origin..."
+  git push origin main
+  log_success "main pushed to origin"
 fi
 
 # Reload settings — they may have changed after the merge (e.g. VERSION_MINOR bump)
@@ -192,8 +192,8 @@ fi
 
 log_phase "PHASE 2: Code Update"
 
-log_info "Pulling latest master (should be fast-forward after Phase 0 merge)..."
-git pull origin master
+log_info "Pulling latest main (should be fast-forward after Phase 0 merge)..."
+git pull origin main
 log_success "Code updated"
 
 log_info "Restarting Flask dev server with new code..."

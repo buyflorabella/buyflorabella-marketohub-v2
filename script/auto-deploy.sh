@@ -109,17 +109,17 @@ step_verify_branch_state() {
   cd "$PROJECT_ROOT"
 
   local current_branch=$(git rev-parse --abbrev-ref HEAD)
-  local dev_ahead=$(git rev-list --count master..HEAD 2>/dev/null || echo 0)
+  local dev_ahead=$(git rev-list --count main..HEAD 2>/dev/null || echo 0)
 
   log_info "Current branch: $current_branch"
-  log_info "Commits ahead of master: $dev_ahead"
+  log_info "Commits ahead of main: $dev_ahead"
 
   if [[ "$current_branch" != "dev" ]]; then
     log_warning "Current branch is $current_branch (expected dev)"
   fi
 
   if [[ "$dev_ahead" -eq 0 ]]; then
-    log_warning "No commits ahead of master"
+    log_warning "No commits ahead of main"
   fi
 
   log_success "Branch state verified"
@@ -134,14 +134,14 @@ step_merge_to_master() {
     return 1
   fi
 
-  if confirm "Merge dev into master in prod worktree?"; then
+  if confirm "Merge dev into main in prod worktree?"; then
     cd "$PROD_ROOT"
 
-    # Ensure we are on master
-    git checkout master || return 1
+    # Ensure we are on main
+    git checkout main || return 1
 
-    # Merge dev into master
-    git merge dev -m "Merge dev into master for production deployment
+    # Merge dev into main
+    git merge dev -m "Merge dev into main for production deployment
 
 Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>" || {
       log_error "Merge conflict or failure!"
@@ -149,7 +149,7 @@ Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>" || {
       return 1
     }
 
-    log_success "Dev merged into master"
+    log_success "Dev merged into main"
     return 0
   else
     log_warning "Skipping merge"

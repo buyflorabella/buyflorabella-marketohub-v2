@@ -11,7 +11,7 @@
 #
 # Tasks:
 #   increment-build   Bump build number, deploy to production, verify version
-#   deploy            Merge dev → master, build frontend, restart backend, verify
+#   deploy            Merge dev → main, build frontend, restart backend, verify
 #   health-check      Smoke-test all production endpoints and service status
 
 set -euo pipefail
@@ -72,7 +72,7 @@ require_dev_worktree() {
 
 TASK_REGISTRY=(
   "increment-build|Bump build number, deploy to production, verify version"
-  "deploy|Merge dev → master, build frontend, restart backend, verify"
+  "deploy|Merge dev → main, build frontend, restart backend, verify"
   "health-check|Smoke-test all production endpoints and service status"
 )
 
@@ -365,23 +365,23 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
   log_step "Step 3 of 7 — Commits to deploy"
   cd "${PROJECT_ROOT}"
   local commits_ahead
-  commits_ahead=$(git rev-list --count master..HEAD 2>/dev/null || echo "0")
+  commits_ahead=$(git rev-list --count main..HEAD 2>/dev/null || echo "0")
 
   if [[ "${commits_ahead}" -eq 0 ]]; then
-    log_warn "No commits ahead of master — nothing to deploy."
+    log_warn "No commits ahead of main — nothing to deploy."
     confirm "Continue anyway?" || return 0
   fi
 
-  git log --oneline master..HEAD | sed 's/^/  /'
+  git log --oneline main..HEAD | sed 's/^/  /'
   echo ""
   confirm "Deploy these ${commits_ahead} commit(s) to production?" || { log_info "Deploy cancelled."; return 0; }
 
   # ── Step 4: Merge ─────────────────────────────────────────────────────────
-  log_step "Step 4 of 7 — Merge dev into master"
+  log_step "Step 4 of 7 — Merge dev into main"
   cd "${PROD_ROOT}"
-  git checkout master
-  git merge dev -m "Deploy: merge dev into master"
-  log_success "Dev merged into master"
+  git checkout main
+  git merge dev -m "Deploy: merge dev into main"
+  log_success "Dev merged into main"
 
   # Capture the deployed version from prod settings (post-merge)
   deployed_version="$( \
@@ -531,17 +531,17 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
   log_success "Committed in dev"
 
-  log_step "Step 3 of 6 — Merge dev into master (prod worktree)"
+  log_step "Step 3 of 6 — Merge dev into main (prod worktree)"
   cd "${PROD_ROOT}"
-  git checkout master
-  git merge dev -m "Build: merge dev into master for build ${new_version}"
-  log_success "Dev merged into master"
+  git checkout main
+  git merge dev -m "Build: merge dev into main for build ${new_version}"
+  log_success "Dev merged into main"
 
   log_step "Step 4 of 6 — Sync build number to prod settings"
   sed -i "s/VERSION_BUILD_NUMBER=\"${current_build}\"/VERSION_BUILD_NUMBER=\"${new_build}\"/" "${prod_settings}"
   git add script/settings.prod.txt
   git commit -m "Build: sync VERSION_BUILD_NUMBER to ${new_version} in prod settings"
-  log_success "settings.prod.txt updated and committed on master"
+  log_success "settings.prod.txt updated and committed on main"
 
   log_step "Step 5 of 6 — Restart backend service (no frontend rebuild needed)"
   sudo systemctl restart pulsecomposer

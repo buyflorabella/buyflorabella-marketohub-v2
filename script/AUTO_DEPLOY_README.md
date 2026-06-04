@@ -43,14 +43,14 @@ The script performs 6 sequential steps:
 
 ### Step 4: Verify Git Branch State
 - Confirms current branch is `dev`
-- Counts commits ahead of `master`
+- Counts commits ahead of `main`
 - Warns if no new commits (nothing to deploy)
 - Allows proceeding with partial state
 
 ### Step 5: Merge to Master
 - Switches to `prod/` worktree
-- Checks out `master` branch
-- Merges `dev` into `master`
+- Checks out `main` branch
+- Merges `dev` into `main`
 - Fails on merge conflicts (requires manual resolution)
 
 ### Step 6: Update Production
@@ -101,7 +101,7 @@ git status
 
 # Step 3: Merge manually
 cd ../prod
-git checkout master
+git checkout main
 git merge dev
 
 # Step 4: Deploy
@@ -130,7 +130,7 @@ step_final_report()             # Summary
 ## Safety Features
 
 ✅ **Worktree Verification** — Must run from dev/  
-✅ **Branch Validation** — Confirms dev and master state  
+✅ **Branch Validation** — Confirms dev and main state  
 ✅ **Interactive Confirmation** — Pauses before risky operations  
 ✅ **Merge Conflict Detection** — Fails safely on conflicts  
 ✅ **Production Health Check** — Validates after deployment  
