@@ -1,0 +1,18 @@
+[Unit]
+Description=buyflorabella Hydrogen Frontend (MiniOxygen/workerd)
+After=network.target
+
+[Service]
+Type=simple
+User=apache
+Group=apache
+WorkingDirectory=/var/www/html/buyflorabella/prod/frontend
+Environment=PORT=20220
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npx shopify hydrogen preview --port 20220
+Restart=on-failure
+RestartSec=5
+SyslogIdentifier=buyflorabella-frontend
+
+[Install]
+WantedBy=multi-user.target
