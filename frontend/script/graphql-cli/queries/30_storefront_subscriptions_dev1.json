@@ -1,0 +1,6 @@
+{
+  "name": "Storefront - Query Product Selling Plans (Subscriptions)",
+  "description": "Fetch selling plan allocations for product variants including billing intervals and pricing discounts",
+  "api": "storefront",
+  "variables": {}
+}

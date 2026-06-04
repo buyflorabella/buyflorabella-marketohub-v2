@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<h1>User Management</h1>
+
+<div class="card">
+    <h2>Add user</h2>
+    <div class="form-inline" id="create-form">
+        <div class="form-row">
+            <label for="new-email">Email</label>
+            <input type="email" id="new-email" placeholder="user@example.com">
+        </div>
+        <div class="form-row" style="flex: 0; min-width: auto; display: flex; align-items: center; gap: 0.4rem; padding-bottom: 0;">
+            <input type="checkbox" id="new-is-admin" style="width: auto;">
+            <label for="new-is-admin" style="margin: 0;">Admin</label>
+        </div>
+        <div class="form-row" style="flex: 0; min-width: auto;">
+            <button class="btn btn-primary" onclick="createUser()">Add</button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>All users</h2>
+    <table id="users-table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Role</th>
+                <th style="width: 140px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="users-tbody">
+            <tr><td colspan="3" style="color:#999;">Loading…</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit modal -->
+<div id="edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; padding:1.5rem; width:360px; max-width:90%;">
+        <h2 style="margin-bottom:1rem;">Edit user</h2>
+        <input type="hidden" id="edit-original-email">
+        <div class="form-row">
+            <label for="edit-email">Email</label>
+            <input type="email" id="edit-email">
+        </div>
+        <div class="form-row" style="display:flex; align-items:center; gap:0.4rem;">
+            <input type="checkbox" id="edit-is-admin" style="width:auto;">
+            <label for="edit-is-admin" style="margin:0;">Admin</label>
+        </div>
+        <hr style="margin:1rem 0; border:none; border-top:1px solid #eee;">
+        <p style="font-size:0.8rem; color:#888; margin-bottom:0.75rem;">Profile data</p>
+        <div class="form-row">
+            <label for="edit-name">Name</label>
+            <input type="text" id="edit-name">
+        </div>
+        <div class="form-row">
+            <label for="edit-phone">Phone</label>
+            <input type="text" id="edit-phone">
+        </div>
+        <div class="form-row">
+            <label for="edit-notes">Notes</label>
+            <textarea id="edit-notes" rows="3"
+                style="width:100%;padding:0.45rem 0.6rem;border:1px solid #d1d5db;border-radius:4px;font-size:0.9rem;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex; gap:0.5rem; margin-top:1rem; justify-content:flex-end;">
+            <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/modal.js"></script>
+<script src="/static/js/admin.js"></script>
+{% endblock %}

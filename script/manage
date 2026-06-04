@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -e
+
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+case "$1" in
+  --frontend)
+    "${BASE_DIR}/run-frontend.sh"
+    ;;
+  --backend)
+    "${BASE_DIR}/run-backend.sh"
+    ;;
+  --gunicorn)
+    "${BASE_DIR}/run-gunicorn.sh"
+    ;;
+  --deploy)
+    "${BASE_DIR}/deploy.sh" "${2:---all}"
+    ;;
+  --deploy-frontend)
+    "${BASE_DIR}/deploy-frontend.sh"
+    ;;
+  --deploy-backend)
+    "${BASE_DIR}/deploy-backend.sh"
+    ;;
+  --release-candidate)
+    "${BASE_DIR}/release-candidate.sh"
+    ;;
+  --kill)
+    "${BASE_DIR}/kill-zombie-backend.sh" "${2:-dev}"
+    ;;
+  --auto-deploy)
+    "${BASE_DIR}/auto-deploy.sh" "${2:---interactive}"
+    ;;
+  --task)
+    "${BASE_DIR}/common_tasks.sh" --run "${2:-}" "${3:-}"
+    ;;
+  --tasks)
+    "${BASE_DIR}/common_tasks.sh" --list
+    ;;
+  *)
+    echo "Usage:"
+    echo "  ./script/manage --frontend          Start React frontend (Vite dev server)"
+    echo "  ./script/manage --backend           Start Flask backend (development)"
+    echo "  ./script/manage --gunicorn          Start Flask backend (Gunicorn production)"
+    echo ""
+    echo "  ./script/manage --deploy --all      Deploy frontend + backend"
+    echo "  ./script/manage --deploy-frontend   Build and deploy React frontend"
+    echo "  ./script/manage --deploy-backend    Install systemd service and restart"
+    echo ""
+    echo "  ./script/manage --release-candidate Create tagged release candidate for bitbucket"
+    echo "  ./script/manage --auto-deploy       Full workflow: tag → merge → deploy"
+    echo ""
+    echo "  ./script/manage --kill [dev|prod]   Kill orphaned backend/frontend processes on managed ports
+
+  ./script/manage --tasks             List all common tasks"
+    echo "  ./script/manage --task <name>       Run a common task (e.g. increment-build)"
+    echo ""
+    echo "  Settings file is auto-detected from worktree directory name:"
+    echo "    prod/ worktree uses script/settings.prod.txt"
+    echo "    dev/  worktree uses script/settings.dev.txt"
+    ;;
+esac

@@ -1,0 +1,5 @@
+{
+  "name": "Enable Storefront Access - Benefits",
+  "description": "Enable storefront API access for custom.benefits metafield",
+  "api": "admin"
+}

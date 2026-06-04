@@ -1,0 +1,16 @@
+query CheckProductMetafieldDefinitions {
+  metafieldDefinitions(ownerType: PRODUCT, first: 50) {
+    nodes {
+      id
+      namespace
+      key
+      name
+      type {
+        name
+      }
+      access {
+        storefront
+      }
+    }
+  }
+}

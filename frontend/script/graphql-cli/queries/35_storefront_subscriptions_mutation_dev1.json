@@ -1,0 +1,6 @@
+{
+  "name": "Storefront - Add Subscription Line to Cart (Mutation)",
+  "description": "Mutation template to add a subscription item to cart using sellingPlanId. Replace CART_ID, VARIANT_ID, SELLING_PLAN_ID with actual values.",
+  "api": "storefront",
+  "variables": {}
+}

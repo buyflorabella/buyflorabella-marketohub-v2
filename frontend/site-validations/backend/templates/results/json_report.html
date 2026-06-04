@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}{{ filename }} - Site Validator{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-filetype-json text-warning"></i> {{ filename }}</h4>
+    <div>
+        <a href="{{ url_for('download_result', filename=filename) }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-download"></i> Download
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<!-- Summary cards -->
+{% if data.summary is defined %}
+<div class="row mb-3">
+    {% for section_name, section_data in data.summary.items() %}
+    <div class="col-md-4 mb-2">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">{{ section_name | replace('_', ' ') | title }}</h6>
+                {% if section_data is mapping %}
+                <dl class="mb-0">
+                    {% for k, v in section_data.items() %}
+                    <div class="d-flex justify-content-between">
+                        <dt class="fw-normal text-muted">{{ k | replace('_', ' ') | title }}</dt>
+                        <dd class="mb-1">
+                            {% if v is number and v > 0 %}
+                            <span class="badge bg-success">{{ v }}</span>
+                            {% elif v is number and v == 0 %}
+                            <span class="badge bg-secondary">{{ v }}</span>
+                            {% else %}
+                            {{ v }}
+                            {% endif %}
+                        </dd>
+                    </div>
+                    {% endfor %}
+                </dl>
+                {% else %}
+                <span class="fs-4">{{ section_data }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Top-level scalar fields -->
+{% set skip_keys = ['summary', 'pages', 'pages_missing_ga', 'pages_missing_clarity', 'entries'] %}
+<div class="row mb-3">
+    {% for key, value in data.items() %}
+    {% if key not in skip_keys and value is not mapping and value is not iterable or value is string %}
+    <div class="col-md-3 mb-2">
+        <div class="card">
+            <div class="card-body py-2">
+                <small class="text-muted">{{ key | replace('_', ' ') | title }}</small>
+                <div class="fw-bold">{{ value }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Pages / entries table -->
+{% set table_data = data.get('pages') or data.get('entries') or none %}
+{% if table_data is iterable and table_data is not string and table_data | length > 0 %}
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0">
+            {% if data.pages is defined %}Pages{% elif data.entries is defined %}Entries{% endif %}
+            <span class="badge bg-secondary">{{ table_data | length }}</span>
+        </h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped mb-0">
+            <thead>
+                <tr>
+                    {% for col in table_data[0].keys() %}
+                    <th>{{ col | replace('_', ' ') | title }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table_data %}
+                <tr>
+                    {% for col, val in row.items() %}
+                    <td>
+                        {% if val is iterable and val is not string %}
+                        <small>{{ val | join(', ') }}</small>
+                        {% elif val is string and val.startswith('http') %}
+                        <a href="{{ val }}" target="_blank" rel="noopener">
+                            {{ val | truncate(60) }}
+                        </a>
+                        {% else %}
+                        {{ val }}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Warning lists (pages_missing_ga, pages_missing_clarity, etc.) -->
+{% for key in ['pages_missing_ga', 'pages_missing_clarity'] %}
+{% if data.get(key) and data[key] | length > 0 %}
+<div class="card mb-3 border-warning">
+    <div class="card-header bg-warning bg-opacity-10">
+        <h6 class="mb-0">
+            <i class="bi bi-exclamation-triangle text-warning"></i>
+            {{ key | replace('_', ' ') | title }}
+            <span class="badge bg-warning text-dark">{{ data[key] | length }}</span>
+        </h6>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for item in data[key] %}
+        <li class="list-group-item">
+            <a href="{{ item }}" target="_blank" rel="noopener">{{ item }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- Raw JSON (collapsible) -->
+<div class="card mb-3">
+    <div class="card-header">
+        <a class="text-decoration-none" data-bs-toggle="collapse" href="#rawJson">
+            <i class="bi bi-code-slash"></i> Raw JSON
+        </a>
+    </div>
+    <div class="collapse" id="rawJson">
+        <div class="card-body p-0">
+            <pre class="p-3 mb-0" style="max-height: 500px; overflow: auto;">{{ raw_json }}</pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

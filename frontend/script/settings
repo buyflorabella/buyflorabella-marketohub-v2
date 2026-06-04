@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+#
+# Shared settings for run.sh and gunicorn.sh
+# Adjust these if your project structure changes.
+#
+
+# where the portal app is found
+APP_DIR="./"
+
+# The python script to run in run.sh
+APP_SCRIPT="client.py"
+
+# Gunicorn application name (module)
+GUNICORN_APP_NAME="client"
+
+# Gunicorn worker count
+WORKERS=3
+
+# Network configuration
+HOST="0.0.0.0"
+PORT="15107" # api.textreader.boardmansgame.com
+#PORT="15115" #jmsm412.textreader.boardmansgame.com
+
+# Python executable
+PYTHON_BIN="python3"
+
+
+### FRONTEND (React Vite) ###########################
+
+#FRONTEND_DIR="frontend/buyflorabella/project5/"
+#FRONTEND_DIR="frontend/alt-hydrogen-frontend-v4/"
+#FRONTEND_DIR="frontend/hydrogen-frontend-v7/"
+FRONTEND_DIR="."
+#FRONTEND_DIR="frontend/hydrogen-frontend-v4-working/"
+FRONTEND_HOST="0.0.0.0"
+#FRONTEND_PORT="20100" # dev.textreader.boardmansgame.com
+#FRONTEND_PORT="20107" # dxb.textreader.boardmansgame.com
+FRONTEND_PORT="15001" # jmsm412.textreader.boardmansgame.com

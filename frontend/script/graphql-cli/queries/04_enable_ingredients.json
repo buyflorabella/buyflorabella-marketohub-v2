@@ -1,0 +1,5 @@
+{
+  "name": "Enable Storefront Access - Ingredients",
+  "description": "Enable storefront API access for custom.ingredients metafield",
+  "api": "admin"
+}

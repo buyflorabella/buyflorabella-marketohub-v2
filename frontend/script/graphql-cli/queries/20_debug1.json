@@ -1,0 +1,8 @@
+{
+  "name": "Storefront - DEBUG 1",
+  "description": "Attempt to get the product query working",
+  "api": "storefront",
+  "variables": {
+    "handle": "5lb-bag"
+  }
+}

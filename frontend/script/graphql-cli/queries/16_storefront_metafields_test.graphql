@@ -1,0 +1,59 @@
+# Test ALL product_overview metafield variants
+# This query demonstrates two methods for fetching metafields:
+#   1. Individual metafield() calls with aliases (lines 10-25)
+#   2. Batch metafields() call with identifiers array (lines 28-42)
+
+query TestAllProductOverviewMetafields($handle: String!) {
+  product(handle: $handle) {
+    id
+    title
+    handle
+
+    # ═══════════════════════════════════════════════════════════════
+    # METHOD 1: Individual metafield queries with aliases
+    # Each metafield is queried separately and given a unique alias
+    # ═══════════════════════════════════════════════════════════════
+
+    # Plain text version
+    overview_plain: metafield(namespace: "custom", key: "product_overview") {
+      namespace
+      key
+      value
+      type
+    }
+
+    # Multiline text version
+    overview_multiline: metafield(namespace: "custom", key: "product_overview_multiline") {
+      namespace
+      key
+      value
+      type
+    }
+
+    # Rich text version (returns JSON that needs parsing)
+    overview_richtext: metafield(namespace: "custom", key: "product_overview_richtext") {
+      namespace
+      key
+      value
+      type
+    }
+
+    # ═══════════════════════════════════════════════════════════════
+    # METHOD 2: Batch query using metafields() with identifiers
+    # All metafields fetched in one field - returns array
+    # ═══════════════════════════════════════════════════════════════
+
+    allOverviewMetafields: metafields(
+      identifiers: [
+        { namespace: "custom", key: "product_overview" }
+        { namespace: "custom", key: "product_overview_multiline" }
+        { namespace: "custom", key: "product_overview_richtext" }
+      ]
+    ) {
+      namespace
+      key
+      value
+      type
+    }
+  }
+}

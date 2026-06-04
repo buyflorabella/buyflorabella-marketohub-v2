@@ -1,0 +1,5 @@
+{
+  "name": "PING Storefront API",
+  "description": "Simple test to verify Storefront API connection - returns shop name",
+  "api": "storefront"
+}

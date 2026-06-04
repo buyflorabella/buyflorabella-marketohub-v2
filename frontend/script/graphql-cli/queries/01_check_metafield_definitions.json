@@ -1,0 +1,5 @@
+{
+  "name": "Check Product Metafield Definitions",
+  "description": "List all product metafield definitions and their storefront access status",
+  "api": "admin"
+}

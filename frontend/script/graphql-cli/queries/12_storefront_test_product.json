@@ -1,0 +1,8 @@
+{
+  "name": "Storefront - Test Product Metafield - NAMESPACE ONLY",
+  "description": "Test fetching a product with metafields via Storefront API",
+  "api": "storefront",
+  "variables": {
+    "handle": "microdust-2lbs-coming-soon"
+  }
+}

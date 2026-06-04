@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'Maison Neue Extended';
+    src: url('https://use.typekit.net/af/c4c302/00000000000000007735a1b8/30/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3') format('woff2'),
+         url('https://use.typekit.net/af/c4c302/00000000000000007735a1b8/30/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3') format('woff'),
+         url('https://use.typekit.net/af/c4c302/00000000000000007735a1b8/30/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Maison Neue Extended';
+    src: url('https://use.typekit.net/af/372411/00000000000000007735a1b9/30/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3') format('woff2'),
+         url('https://use.typekit.net/af/372411/00000000000000007735a1b9/30/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3') format('woff'),
+         url('https://use.typekit.net/af/372411/00000000000000007735a1b9/30/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Maison Neue Extended';
+    src: url('https://use.typekit.net/af/9b05f6/00000000000000007735a1ba/30/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n6&v=3') format('woff2'),
+         url('https://use.typekit.net/af/9b05f6/00000000000000007735a1ba/30/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n6&v=3') format('woff'),
+         url('https://use.typekit.net/af/9b05f6/00000000000000007735a1ba/30/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n6&v=3') format('opentype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Maison Neue Extended';
+    src: url('https://use.typekit.net/af/27ceae/00000000000000007735a1bb/30/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3') format('woff2'),
+         url('https://use.typekit.net/af/27ceae/00000000000000007735a1bb/30/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3') format('woff'),
+         url('https://use.typekit.net/af/27ceae/00000000000000007735a1bb/30/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Maison Neue Extended';
+    src: url('https://use.typekit.net/af/4db80f/00000000000000007735a1bc/30/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n8&v=3') format('woff2'),
+         url('https://use.typekit.net/af/4db80f/00000000000000007735a1bc/30/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n8&v=3') format('woff'),
+         url('https://use.typekit.net/af/4db80f/00000000000000007735a1bc/30/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n8&v=3') format('opentype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: 'Maison Neue Extended', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+    @apply bg-[#0a0a0a] text-white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Maison Neue Extended', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  button, input, select {
+    font-family: 'Maison Neue Extended', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .gradient-earth {
+    background: linear-gradient(135deg, #8b6f47 0%, #5a4a2f 100%);
+  }
+
+  .gradient-dark {
+    background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  }
+
+  .gradient-green {
+    background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%);
+  }
+
+  .heading-font {
+    font-family: 'Maison Neue Extended', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .text-display {
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+
+  .floating {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .floating-delayed {
+    animation: float 6s ease-in-out 2s infinite;
+  }
+
+  .floating-slow {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .floating-x {
+    animation: floatX 7s ease-in-out infinite;
+  }
+
+  .floating-diagonal {
+    animation: floatDiagonal 9s ease-in-out infinite;
+  }
+
+  .spin-slow {
+    animation: spinSlow 20s linear infinite;
+  }
+
+  .parallax-float {
+    animation: parallaxFloat 5s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes floatX {
+    0%, 100% {
+      transform: translateX(0px);
+    }
+    50% {
+      transform: translateX(-30px);
+    }
+  }
+
+  @keyframes floatDiagonal {
+    0%, 100% {
+      transform: translate(0px, 0px);
+    }
+    50% {
+      transform: translate(-15px, -25px);
+    }
+  }
+
+  @keyframes spinSlow {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes parallaxFloat {
+    0%, 100% {
+      transform: translateY(0px) scale(1);
+    }
+    50% {
+      transform: translateY(-30px) scale(1.05);
+    }
+  }
+
+  .accent-border {
+    border-left: 4px solid #7cb342;
+  }
+
+  .bg-offwhite {
+    background: #f8f8f6;
+  }
+
+  .gradient-offwhite {
+    background: linear-gradient(180deg, #fafaf9 0%, #f0f0ee 100%);
+  }
+}

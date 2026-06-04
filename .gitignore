@@ -1,0 +1,25 @@
+# Settings files contain secrets — never commit
+script/settings.dev.txt
+script/settings.prod.txt
+
+# Hydrogen frontend — node_modules and env
+frontend/node_modules/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Backend
+backend/__pycache__/
+backend/*.pyc
+backend/.venv/
+
+# Logs
+*.log
+claude_docs/exec_logs/
+
+# OS
+.DS_Store
+
+# Python cache
+**/__pycache__/
+**/*.pyc

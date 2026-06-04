@@ -1,0 +1,10 @@
+query TestKeyBenefitsMetafield($handle: String!) {
+  productByHandle(handle: $handle) {
+    id
+    title
+    keyBenefits: metafield(namespace: "custom", key: "key_benefits_parsable") {
+      value
+      type
+    }
+  }
+}

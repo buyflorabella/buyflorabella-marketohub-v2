@@ -1,0 +1,285 @@
+{% extends "admin/base.html" %}
+{% block title %}Site Health{% endblock %}
+
+{% block head %}
+<style>
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  max-width: 960px;
+  margin-top: 1.5rem;
+}
+.health-card {
+  background: #0d1117;
+  border: 1px solid #1a2030;
+  border-radius: 6px;
+  padding: 1.1rem 1.25rem;
+  position: relative;
+}
+.health-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.65rem;
+}
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-ok      { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+.dot-warn    { background: #f59e0b; box-shadow: 0 0 6px #f59e0b88; }
+.dot-err     { background: #ef4444; box-shadow: 0 0 6px #ef444488; }
+.dot-loading { background: #445; }
+.health-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ccc;
+}
+.health-card-body {
+  font-size: 0.8rem;
+  color: #778;
+  line-height: 1.65;
+}
+.health-card-body .val-ok   { color: #22c55e; }
+.health-card-body .val-warn { color: #f59e0b; }
+.health-card-body .val-err  { color: #ef4444; }
+.health-card-body .val-mute { color: #445; }
+.health-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+.health-overall {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.health-ts {
+  font-size: 0.78rem;
+  color: #445;
+}
+.btn-refresh {
+  padding: 5px 16px;
+  background: #1e2a3a;
+  color: #7eb3ff;
+  border: 1px solid #2a3a50;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: background 0.15s;
+}
+.btn-refresh:hover { background: #253448; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>Site Health</h2>
+<p style="color:#556; font-size:0.85rem; margin-top:-0.4rem; margin-bottom:1rem;">
+  Passive checks only — no outbound HTTP.
+</p>
+
+<div class="health-summary">
+  <span id="overall-badge" class="health-overall">—</span>
+  <span id="health-ts" class="health-ts"></span>
+  <button class="btn-refresh" onclick="loadHealth()">↻ Refresh</button>
+</div>
+
+<div class="health-grid" id="health-grid">
+  <!-- Skeleton cards while loading -->
+  <div class="health-card"><div class="health-card-header"><div class="status-dot dot-loading"></div><span class="health-card-title" style="color:#445;">Loading…</span></div></div>
+  <div class="health-card"><div class="health-card-header"><div class="status-dot dot-loading"></div><span class="health-card-title" style="color:#445;">Loading…</span></div></div>
+</div>
+
+<!-- ── Auto-repoll timer ──────────────────────────────────────────────── -->
+<div style="margin-top:2rem; max-width:860px;">
+  <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+    <span style="font-size:0.82rem; color:#556; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Auto-repoll</span>
+    <div style="display:flex; align-items:center; gap:4px;">
+      <input type="number" id="poll-interval" value="30" min="5" max="3600"
+        style="width:64px; background:#0d1117; border:1px solid #1e2040; color:#bbb; padding:4px 7px; border-radius:4px; font-size:0.82rem; text-align:center;"
+        title="Interval in seconds (min 5)">
+      <span style="font-size:0.78rem; color:#445;">s</span>
+    </div>
+    <button id="timer-btn" onclick="toggleTimer()" class="btn-refresh" style="padding:4px 14px;">▶ Start</button>
+    <span id="timer-status" style="font-size:0.78rem; color:#445;">Stopped</span>
+  </div>
+
+  <!-- Poll log -->
+  <div id="poll-log" style="display:none; margin-top:0.75rem;">
+    <p style="font-size:0.78rem; color:#445; margin:0 0 0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Poll log (newest first, max 30)</p>
+    <div id="poll-list" style="background:#0a0e16; border:1px solid #1a2030; border-radius:6px; max-height:280px; overflow-y:auto; font-family:monospace;"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function loadHealth() {
+  fetch('/api/health/system', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) { renderHealth(data, false); })
+    .catch(function(e) {
+      document.getElementById('overall-badge').textContent = '✗ Error fetching health data';
+      document.getElementById('overall-badge').style.color = '#ef4444';
+      document.getElementById('health-grid').innerHTML =
+        '<div class="health-card"><p style="color:#ef4444; font-size:0.85rem;">Request failed: ' + escHtml(String(e)) + '</p></div>';
+    });
+}
+
+function renderHealth(data, logEntry) {
+  var checks = data.checks || {};
+  var anyErr  = Object.values(checks).some(function(c){ return !c.ok; });
+  var anyWarn = Object.values(checks).some(function(c){ return c.ok && c.warn; });
+  var badge = document.getElementById('overall-badge');
+  if (anyErr)       { badge.textContent = '✗ Issues detected';            badge.style.color = '#ef4444'; }
+  else if (anyWarn) { badge.textContent = '⚠ Operational with warnings';  badge.style.color = '#f59e0b'; }
+  else              { badge.textContent = '✓ All systems operational';     badge.style.color = '#22c55e'; }
+  if (logEntry) appendPollLog(data);
+
+  var ts = new Date(data.ts * 1000);
+  document.getElementById('health-ts').textContent = 'Checked at ' + ts.toLocaleTimeString();
+
+  var order = ['mongodb', 'smtp'];
+  var cards = order
+    .filter(function(k) { return checks[k]; })
+    .map(function(k) { return buildCard(k, checks[k]); })
+    .join('');
+
+  // Append any extra keys not in our order list
+  Object.keys(checks).forEach(function(k) {
+    if (order.indexOf(k) === -1) {
+      cards += buildCard(k, checks[k]);
+    }
+  });
+
+  document.getElementById('health-grid').innerHTML = cards;
+}
+
+function buildCard(key, c) {
+  var dotClass = !c.ok ? 'dot-err' : c.warn ? 'dot-warn' : 'dot-ok';
+  var body = '';
+
+  if (key === 'mongodb') {
+    body += row('Status', c.ok ? '<span class="val-ok">Connected</span>' : '<span class="val-err">Unreachable</span>');
+    if (c.host) body += row('Host', '<span style="font-family:monospace;">' + escHtml(c.host) + '</span>');
+    if (c.port) body += row('Port', '<span style="font-family:monospace;">' + c.port + '</span>');
+    if (c.db)   body += row('Database', '<span style="font-family:monospace;">' + escHtml(c.db) + '</span>');
+    if (c.latency_ms !== undefined) body += row('Latency', c.latency_ms + ' ms');
+    if (c.error) body += row('Error', '<span class="val-err">' + escHtml(c.error) + '</span>');
+
+  } else if (key === 'smtp') {
+    var configStatus = c.configured
+      ? '<span class="val-ok">Configured</span>'
+      : '<span class="val-warn">Not configured</span>';
+    body += row('Credentials', configStatus);
+    body += row('OTP dev mode', c.dev_mode
+      ? '<span class="val-warn">ON — skipping real SMTP</span>'
+      : '<span class="val-ok">OFF — production mode</span>');
+    if (c.note) body += row('Note', '<span class="val-mute">' + escHtml(c.note) + '</span>');
+
+  } else {
+    body += row('Status', c.ok ? '<span class="val-ok">OK</span>' : '<span class="val-err">Error</span>');
+    if (c.error) body += row('Error', '<span class="val-err">' + escHtml(c.error) + '</span>');
+    if (c.note) body += row('Note', escHtml(c.note));
+  }
+
+  return '<div class="health-card">'
+    + '<div class="health-card-header">'
+    + '<div class="status-dot ' + dotClass + '"></div>'
+    + '<span class="health-card-title">' + escHtml(c.label || key) + '</span>'
+    + '</div>'
+    + '<div class="health-card-body"><table style="width:100%; border-collapse:collapse;">' + body + '</table></div>'
+    + '</div>';
+}
+
+function row(label, valueHtml) {
+  return '<tr>'
+    + '<td style="padding:2px 10px 2px 0; white-space:nowrap; vertical-align:top; color:#445;">' + label + '</td>'
+    + '<td style="padding:2px 0; vertical-align:top;">' + valueHtml + '</td>'
+    + '</tr>';
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+loadHealth();
+
+// ── Auto-repoll timer ────────────────────────────────────────────────────────
+var _pollTimer = null;
+var _pollCount = 0;
+var MAX_LOG    = 30;
+
+function startTimer() {
+  var secs = parseInt(document.getElementById('poll-interval').value, 10) || 30;
+  if (secs < 5) secs = 5;
+  stopTimer();
+  _pollTimer = setInterval(function() { doPoll(); }, secs * 1000);
+  document.getElementById('timer-btn').textContent  = '⏹ Stop';
+  document.getElementById('timer-btn').style.background = '#2d1a1a';
+  document.getElementById('timer-btn').style.borderColor = '#5a2020';
+  document.getElementById('timer-status').textContent = 'Polling every ' + secs + 's';
+  document.getElementById('timer-status').style.color = '#f59e0b';
+}
+
+function stopTimer() {
+  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+  document.getElementById('timer-btn').textContent  = '▶ Start';
+  document.getElementById('timer-btn').style.background = '';
+  document.getElementById('timer-btn').style.borderColor = '';
+  document.getElementById('timer-status').textContent = 'Stopped';
+  document.getElementById('timer-status').style.color = '#445';
+}
+
+function toggleTimer() {
+  if (_pollTimer) { stopTimer(); } else { startTimer(); }
+}
+
+function doPoll() {
+  _pollCount++;
+  fetch('/api/health/system', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) { renderHealth(data, true); })
+    .catch(function(e)  { appendPollLog(null, String(e)); });
+}
+
+function appendPollLog(data, errMsg) {
+  var log  = document.getElementById('poll-log');
+  var list = document.getElementById('poll-list');
+
+  log.style.display = 'block';
+
+  var ts = new Date().toLocaleTimeString();
+  var row = document.createElement('div');
+  row.style.cssText = 'padding:5px 10px; border-bottom:1px solid #0e1420; display:flex; gap:1rem; align-items:baseline; font-size:0.8rem;';
+
+  if (errMsg) {
+    row.innerHTML = '<span style="color:#445; font-family:monospace; min-width:72px;">' + ts + '</span>'
+      + '<span style="color:#ef4444;">✗ Fetch error: ' + escHtml(errMsg) + '</span>';
+  } else {
+    var checks   = data.checks || {};
+    var anyErr   = Object.values(checks).some(function(c){ return !c.ok; });
+    var anyWarn  = Object.values(checks).some(function(c){ return c.ok && c.warn; });
+    var color    = anyErr ? '#ef4444' : anyWarn ? '#f59e0b' : '#22c55e';
+    var symbol   = anyErr ? '✗' : anyWarn ? '⚠' : '✓';
+    var failures = Object.entries(checks)
+      .filter(function(kv){ return !kv[1].ok || kv[1].warn; })
+      .map(function(kv){ return kv[0]; });
+    var detail = failures.length ? failures.join(', ') : 'all ok';
+    row.innerHTML = '<span style="color:#445; font-family:monospace; min-width:72px;">' + ts + '</span>'
+      + '<span style="color:' + color + '; min-width:18px;">' + symbol + '</span>'
+      + '<span style="color:#556;">' + escHtml(detail) + '</span>';
+  }
+
+  list.insertBefore(row, list.firstChild);
+
+  while (list.children.length > MAX_LOG) {
+    list.removeChild(list.lastChild);
+  }
+}
+</script>
+{% endblock %}

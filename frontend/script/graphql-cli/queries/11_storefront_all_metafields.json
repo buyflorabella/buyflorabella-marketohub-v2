@@ -1,0 +1,9 @@
+{
+  "name": "Storefront - Get All Product Metafields",
+  "description": "Fetch all accessible metafields for a product via Storefront API",
+  "api": "storefront",
+  "variables": {
+    "handle": "5lb-bag"
+  }
+}
+

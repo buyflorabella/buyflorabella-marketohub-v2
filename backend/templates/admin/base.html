@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} — {{ config['APP_NAME'] }}</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+<nav class="admin-nav">
+    <a href="/admin/" class="brand">{{ config['APP_NAME'] }} Admin</a>
+    <a href="/admin/">Dashboard</a>
+    <a href="/admin/users">Users</a>
+    <a href="/admin/chat">Chat</a>
+    <div class="nav-group">
+        <span class="nav-group-toggle">System</span>
+        <div class="nav-dropdown">
+            <a href="/admin/access">Access Control</a>
+            <a href="/admin/health">Health</a>
+            <a href="/admin/stats">Stats</a>
+            <a href="/admin/email-test">Email Test</a>
+        </div>
+    </div>
+    <span class="spacer"></span>
+    <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);font-family:monospace;margin-right:0.75rem;letter-spacing:0.03em;user-select:none;">{{ app_version }}</span>
+    <span class="nav-user">{{ email }}</span>
+    <a href="#" id="logout-link">Logout</a>
+    {% if config['FRONTEND_URL'] %}
+    <a href="{{ config['FRONTEND_URL'] }}" target="_blank" rel="noopener">→ Frontend</a>
+    {% endif %}
+</nav>
+
+<main class="admin-main">
+    <div id="flash-msg" class="alert"></div>
+    {% block content %}{% endblock %}
+</main>
+
+<script>
+document.getElementById('logout-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+        .then(() => { window.location.href = '/admin/login'; });
+});
+
+function showFlash(msg, type) {
+    var el = document.getElementById('flash-msg');
+    el.textContent = msg;
+    el.className = 'alert alert-' + (type || 'success');
+    el.style.display = 'block';
+    setTimeout(function() { el.style.display = 'none'; }, 4000);
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

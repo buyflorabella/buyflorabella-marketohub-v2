@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+{% block title %}Email Test{% endblock %}
+
+{% block content %}
+<h1>Email Test</h1>
+<p style="color:#888; font-size:0.875rem; margin-bottom:1.5rem;">
+    Sends a real email using your configured SMTP settings.
+</p>
+
+<div class="card" style="max-width:540px;">
+    <div id="result-msg" class="alert" style="display:none;"></div>
+
+    <div class="form-row">
+        <label for="et-to">To</label>
+        <input type="email" id="et-to" placeholder="recipient@example.com">
+    </div>
+    <div class="form-row">
+        <label for="et-subject">Subject</label>
+        <input type="text" id="et-subject" value="PulseComposer email test">
+    </div>
+    <div class="form-row">
+        <label for="et-body">Body</label>
+        <textarea id="et-body" rows="5"
+            style="width:100%;padding:0.45rem 0.6rem;border:1px solid #d1d5db;border-radius:4px;font-size:0.9rem;resize:vertical;"
+        >This is a test email from PulseComposer admin.</textarea>
+    </div>
+    <button class="btn btn-primary" id="send-btn" onclick="sendTestEmail()">Send</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function sendTestEmail() {
+    var btn = document.getElementById('send-btn');
+    var result = document.getElementById('result-msg');
+    var to      = document.getElementById('et-to').value.trim();
+    var subject = document.getElementById('et-subject').value.trim();
+    var body    = document.getElementById('et-body').value.trim();
+
+    result.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    fetch('/admin/email-test/send', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: to, subject: subject, body: body })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        result.textContent = res.data.success ? 'Email sent successfully.' : (res.data.message || 'Send failed.');
+        result.className = 'alert alert-' + (res.data.success ? 'success' : 'error');
+        result.style.display = 'block';
+    })
+    .catch(function() {
+        result.textContent = 'Network error.';
+        result.className = 'alert alert-error';
+        result.style.display = 'block';
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Send';
+    });
+}
+</script>
+{% endblock %}

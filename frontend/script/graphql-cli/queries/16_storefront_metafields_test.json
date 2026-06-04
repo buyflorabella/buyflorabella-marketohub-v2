@@ -1,0 +1,8 @@
+{
+  "name": "Storefront - Test ALL Product Metafields",
+  "description": "Query all three product_overview metafield variants (richtext, multiline, plain) using both methods",
+  "api": "storefront",
+  "variables": {
+    "handle": "flora-bella-bio-trace-5-lb-garden"
+  }
+}

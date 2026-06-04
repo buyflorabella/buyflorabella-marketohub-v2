@@ -1,0 +1,26 @@
+mutation EnableStorefrontAccess_Benefits {
+  metafieldDefinitionUpdate(
+    definition: {
+      namespace: "custom"
+      key: "benefits"
+      ownerType: PRODUCT
+      access: {
+        storefront: PUBLIC_READ
+      }
+    }
+  ) {
+    updatedDefinition {
+      id
+      namespace
+      key
+      access {
+        storefront
+      }
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}

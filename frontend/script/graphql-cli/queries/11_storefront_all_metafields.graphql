@@ -1,0 +1,22 @@
+# Fetch ALL custom metafields for a product via Storefront API
+# Includes: product_overview variants, benefits, ingredients, how_to_use
+
+query GetAllProductMetafields($handle: String!) {
+  product(handle: $handle) {
+    id
+    title
+    handle
+
+    # Product Overview variants (3 types)
+    metafields(
+      identifiers: [
+        { namespace: "custom", key: "product_overview" }
+      ]
+    ) {
+      namespace
+      key
+      value
+      type
+    }
+  }
+}

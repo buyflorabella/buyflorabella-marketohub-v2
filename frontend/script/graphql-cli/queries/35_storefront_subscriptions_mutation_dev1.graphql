@@ -1,0 +1,17 @@
+mutation {
+  cartLinesAdd(
+    cartId: "CART_ID",
+    lines: [
+      {
+        merchandiseId: "VARIANT_ID",
+        sellingPlanId: "SELLING_PLAN_ID",
+        quantity: 1
+      }
+    ]
+  ) {
+    cart {
+      id
+      checkoutUrl
+    }
+  }
+}

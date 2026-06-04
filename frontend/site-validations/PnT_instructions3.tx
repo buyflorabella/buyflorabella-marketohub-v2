@@ -1,0 +1,25 @@
+Task: Build Flask-based UI in /backend
+Goal
+Create a complete Python Flask interface (frontend + backend UI) without modifying the existing framework code.
+
+Steps
+
+1. Create a new subfolder `/backend` in the project root.
+2. Initialize a Flask application inside `/backend` with proper folder structure (`templates`, `static`, etc.).
+3. Build UI components in Flask (HTML/Jinja templates, CSS, JS) to mirror or wrap interactions with the existing framework.
+4. Implement backend Flask routes that will execute bash scripts and return results to the UI.
+5. Ensure the Flask app reads outputs from the bash scripts and displays them cleanly in the frontend.
+6. Include error handling and logging for script execution.
+7. Keep the Flask interface completely decoupled from the existing frontend framework; no changes to original code.
+
+Done When
+
+1. Flask app in `/backend` successfully executes backend bash scripts and returns output to the UI.
+2. Frontend UI in Flask fully functional, responsive, and independent from the existing codebase.
+
+Notes
+
+- Do not touch or import anything from the existing framework code.
+- Focus only on `/backend` folder for all Flask implementation.
+- Ensure the interface can handle multiple script executions and display results dynamically.
+- Consider basic authentication or session management for secure script execution if needed.

@@ -1,0 +1,18 @@
+query TestProductMetafield($handle: String!) {
+  productByHandle(handle: $handle) {
+    id
+    title
+    oneMeta: metafield(namespace: "custom", key: "product_overview") {
+      value
+      type
+    }
+    twoMeta: metafield(namespace: "custom", key: "product_overview_multiline") {
+      value
+      type
+    }    
+    threeMeta: metafield(namespace: "custom", key: "product_overview_richtext") {
+      value
+      type
+    }        
+  }
+}

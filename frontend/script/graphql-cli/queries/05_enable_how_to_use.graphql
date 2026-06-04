@@ -1,0 +1,26 @@
+mutation EnableStorefrontAccess_HowToUse {
+  metafieldDefinitionUpdate(
+    definition: {
+      namespace: "custom"
+      key: "how_to_use"
+      ownerType: PRODUCT
+      access: {
+        storefront: PUBLIC_READ
+      }
+    }
+  ) {
+    updatedDefinition {
+      id
+      namespace
+      key
+      access {
+        storefront
+      }
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}

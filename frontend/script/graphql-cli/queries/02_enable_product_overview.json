@@ -1,0 +1,5 @@
+{
+  "name": "Enable Storefront Access - Product Overview",
+  "description": "Enable storefront API access for custom.product_overview_multiline metafield",
+  "api": "admin"
+}

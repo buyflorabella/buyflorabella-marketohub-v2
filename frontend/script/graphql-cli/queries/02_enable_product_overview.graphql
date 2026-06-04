@@ -1,0 +1,26 @@
+mutation EnableStorefrontAccess_ProductOverview {
+  metafieldDefinitionUpdate(
+    definition: {
+      namespace: "custom"
+      key: "product_overview_multiline"
+      ownerType: PRODUCT
+      access: {
+        storefront: PUBLIC_READ
+      }
+    }
+  ) {
+    updatedDefinition {
+      id
+      namespace
+      key
+      access {
+        storefront
+      }
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}

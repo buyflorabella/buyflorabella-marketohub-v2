@@ -1,0 +1,5 @@
+{
+  "name": "Create Metafield Definition - Product Overview",
+  "description": "Create the product_overview_multiline metafield definition if it doesn't exist",
+  "api": "admin"
+}

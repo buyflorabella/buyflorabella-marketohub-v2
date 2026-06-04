@@ -1,0 +1,47 @@
+query {
+  productByHandle(handle: "5lb-bag") {
+    id
+    title
+
+    variants(first: 5) {
+      nodes {
+        id
+        title
+
+        sellingPlanAllocations(first: 5) {
+          nodes {
+
+            sellingPlan {
+              id
+              name
+
+              billingPolicy {
+                ... on SellingPlanRecurringBillingPolicy {
+                  interval
+                  intervalCount
+                }
+              }
+            }
+
+            priceAdjustments {
+              price {
+                amount
+                currencyCode
+              }
+
+              compareAtPrice {
+                amount
+                currencyCode
+              }
+
+              perDeliveryPrice {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

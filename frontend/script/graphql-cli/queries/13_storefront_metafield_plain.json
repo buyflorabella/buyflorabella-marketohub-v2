@@ -1,0 +1,8 @@
+{
+  "name": "Storefront - Metafield: product_overview (plain)",
+  "description": "Query the plain text product_overview metafield only",
+  "api": "storefront",
+  "variables": {
+    "handle": "flora-bella-bio-trace-5-lb-garden"
+  }
+}

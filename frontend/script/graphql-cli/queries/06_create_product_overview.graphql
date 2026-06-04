@@ -1,0 +1,29 @@
+mutation CreateMetafieldDefinition_ProductOverview {
+  metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "product_overview_multiline"
+      name: "Product Overview"
+      description: "Extended product description for the Overview tab"
+      type: "multi_line_text_field"
+      ownerType: PRODUCT
+      access: {
+        storefront: PUBLIC_READ
+      }
+    }
+  ) {
+    createdDefinition {
+      id
+      namespace
+      key
+      access {
+        storefront
+      }
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}

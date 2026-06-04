@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+<div class="card">
+    <p>Welcome back, <strong>{{ email }}</strong>.</p>
+</div>
+<div class="card">
+    <h2>Quick links</h2>
+    <p style="margin-top: 0.5rem;">
+        <a href="/admin/users" class="btn btn-primary" style="margin-right: 0.5rem;">Manage users</a>
+        <a href="/api/docs" target="_blank" rel="noopener" class="btn btn-secondary">API docs</a>
+    </p>
+</div>
+{% endblock %}

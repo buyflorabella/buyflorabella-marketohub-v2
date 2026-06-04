@@ -1,0 +1,8 @@
+{
+  "name": "Storefront - Metafield: product_overview_multiline",
+  "description": "Query the multiline text product_overview_multiline metafield only",
+  "api": "storefront",
+  "variables": {
+    "handle": "5lb-bag"
+  }
+}

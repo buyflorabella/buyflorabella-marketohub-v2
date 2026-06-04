@@ -1,0 +1,14 @@
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 4px #FFFF33, 0 0 6px #FFFF33, 0 0 8px #FFFF33;
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 8px #FFFF33, 0 0 12px #FFFF33, 0 0 16px #FFFF33;
+    transform: scale(1.02);
+  }
+}
+
+.neon-pulse {
+  animation: neon-pulse 1s infinite alternate;
+}

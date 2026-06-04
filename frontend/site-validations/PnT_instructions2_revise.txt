@@ -1,0 +1,110 @@
+Task: Revise Validator to Expose Raw HTML + Improve robots.txt Handling
+
+Goal  
+Enable users to directly view the raw rendered HTML for any page (especially the homepage), add targeted page validation for analytics troubleshooting, and improve robots.txt discovery and reporting so its impact on crawling and SEO is clearly understood.
+
+Steps
+
+- Add a CLI command to display raw HTML:
+
+  ./validator html https://example.com  
+  ./validator html https://example.com/some-page  
+
+  Requirements:
+  - Fetch using curl.
+  - Output directly to the terminal by default.
+  - Support an optional flag to save the file:
+
+    ./validator html https://example.com --save
+
+    Output → /output/raw_html_homepage.html (or normalized filename).
+
+- Automatically treat the homepage as a first-class validation target:
+  - Always allow:
+    
+    ./validator html https://example.com
+    
+  - Ensure it bypasses crawler dependency (should not require sitemap generation first).
+
+- Add targeted analytics validation:
+
+  ./validator analytics --page https://example.com/pricing
+
+  Behavior:
+  - Scan only the provided URL.
+  - Report:
+    - Google Analytics present/missing
+    - Microsoft Clarity present/missing
+    - Script snippet match if found
+  - Clearly state PASS or FAIL.
+
+- Improve robots.txt detection:
+  - Explicitly fetch:
+
+    https://domain.com/robots.txt
+
+  - Report:
+    - Exists / Missing
+    - HTTP status
+    - File location
+    - Whether the validator is respecting it
+
+- Parse robots.txt at a basic level:
+  - Detect:
+    - User-agent: *
+    - Disallow rules
+    - Sitemap entries
+  - Warn if the homepage is disallowed.
+  - Warn if broad rules such as `Disallow: /` exist.
+
+- Add a CLI inspection command:
+
+  ./validator robots https://example.com
+
+  Output should include:
+  - Raw robots.txt contents
+  - Parsed summary
+  - SEO risk warnings (if applicable)
+
+- Verify crawler behavior:
+  - Confirm whether the crawler is currently blocking pages because of robots.txt.
+  - If blocking is enabled, clearly log:
+
+    "Skipped due to robots.txt"
+
+  - If robots.txt is missing, state that explicitly.
+
+- Add configuration toggle:
+
+  config/thresholds.conf
+
+  Example:
+
+  RESPECT_ROBOTS=true
+
+  This allows controlled troubleshooting if users need to override robots rules temporarily.
+
+Done When
+
+- Users can instantly view raw HTML for any URL.
+- Homepage HTML retrieval works independently of crawling.
+- Analytics can be validated on a single targeted page.
+- robots.txt source is clearly identified and parsed.
+- Validator explains WHY pages are skipped.
+- SEO risks from robots.txt are surfaced.
+- Output is readable and useful for troubleshooting.
+
+Notes
+
+- Simplicity remains the highest priority — avoid building a full crawler-grade robots parser.
+- Do NOT introduce heavy dependencies or SEO libraries.
+- Prefer grep/awk-style parsing unless complexity forces otherwise.
+- Focus on modifying:
+
+  validator.sh  
+  scripts/crawl.sh  
+  scripts/analytics.sh  
+
+- Avoid changing output formats unless necessary.
+- Ensure new commands appear in ./validator --help.
+- This tool is increasingly becoming a troubleshooting utility — optimize for clarity of output over clever implementation.

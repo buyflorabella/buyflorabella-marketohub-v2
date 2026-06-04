@@ -1,0 +1,19 @@
+# Query: custom.product_overview (single_line_text_field or plain text)
+
+query GetProductOverviewPlain($handle: String!) {
+  product(handle: $handle) {
+    id
+    title
+
+    metafield(namespace: "custom", key: "product_overview") {
+      id
+      namespace
+      key
+      value
+      type
+      description
+      createdAt
+      updatedAt
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Storefront - Test key_benefits_parsable Metafield",
+  "description": "Query the key_benefits_parsable metafield for product benefits display",
+  "api": "storefront",
+  "variables": {
+    "handle": "5lb-bag"
+  }
+}

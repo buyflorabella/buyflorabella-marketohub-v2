@@ -1,0 +1,325 @@
+# PnT_instructions_to_init.md
+# Claude Code Instructions Template
+
+## Project Overview
+
+Project Name: Simple Site Validator  
+
+Description:  
+A minimal, command-line-driven validation toolkit that crawls a website and verifies critical post-launch signals such as analytics presence, sitemap structure, and basic performance metrics. The system must prioritize simplicity, readability, and low dependency overhead.
+
+Current Phase: Init  
+
+Tech Stack:
+- Language: Bash (primary CLI), small helper scripts in Python or POSIX shell only if absolutely necessary  
+- Framework: Custom, zero-framework approach  
+- Database: Flat files (JSON or CSV outputs)
+
+---
+
+## Task Instructions
+
+### Primary Objective
+
+Initialize a lightweight framework where Bash acts as the main command interface to run validation scripts beneath it.
+
+The system should:
+
+- Crawl a website and render raw HTML output (using curl or equivalent).
+- Generate a structured sitemap while preventing infinite loops.
+- Detect Google Analytics and Microsoft Clarity scripts across pages.
+- Confirm analytics presence specifically on the homepage.
+- Produce basic performance insights such as response time and large payload indicators.
+
+The design must favor clarity over cleverness.
+
+---
+
+### Specific Tasks
+
+1. Create a Bash entrypoint script (validator.sh) that exposes commands such as:
+
+   ./validator crawl https://example.com  
+   ./validator analytics https://example.com  
+   ./validator performance https://example.com  
+
+2. Build a simple crawler that:
+   - Uses curl to fetch HTML.
+   - Extracts links from <a href="">.
+   - Normalizes relative URLs.
+   - Avoids revisiting previously crawled pages.
+   - Outputs a structured sitemap (JSON preferred).
+
+3. Implement analytics detection:
+   - Detect GA4 (gtag, googletagmanager, G- IDs).
+   - Detect Microsoft Clarity.
+   - Output:
+     - Pages where found
+     - Pages missing analytics
+     - Homepage validation result
+
+4. Add performance checks:
+   - Capture total request time from curl.
+   - Record page size.
+   - Flag pages exceeding configurable thresholds (example: >3MB).
+
+5. Store results in /output:
+
+   output/
+   ├── sitemap.json
+   ├── analytics_report.json
+   ├── performance_report.json
+
+6. Ensure scripts fail gracefully with useful error messages.
+
+---
+
+### Success Criteria
+
+- [ ] CLI runs from a single Bash entrypoint  
+- [ ] Sitemap builds without infinite recursion  
+- [ ] Analytics detection correctly identifies GA and Clarity  
+- [ ] Homepage analytics validation works  
+- [ ] Performance metrics recorded per page  
+- [ ] Output files generated in structured format  
+- [ ] Code is readable enough for a junior engineer to follow  
+
+---
+
+## Coding Standards
+
+### Code Style
+- Formatting: Clean Bash with consistent indentation  
+- Linting: shellcheck-compatible  
+- Max line length: ~100 characters  
+- Naming conventions: snake_case for scripts and functions  
+
+---
+
+### Best Practices
+- Prefer native Unix tools (grep, awk, sed) over heavy dependencies.
+- Avoid complex pipelines unless they improve readability.
+- Keep functions under ~40 lines.
+- Write scripts as modular units.
+- Comment only where intent is not obvious.
+
+---
+
+### Testing Requirements
+- Provide a small test target (example: example.com).
+- Include a dry-run mode.
+- Validate crawler loop prevention.
+- Confirm analytics detection works against known script patterns.
+
+---
+
+### Git Commit Standards
+Use conventional commits:
+
+feat(cli): add crawl command  
+fix(crawler): prevent duplicate url visits  
+chore(output): standardize json format  
+
+Keep commits atomic.
+
+---
+
+## File Organization
+
+### Directory Structure
+
+project-root/
+├── validator.sh        # Main CLI entrypoint
+├── scripts/
+│   ├── crawl.sh
+│   ├── analytics.sh
+│   ├── performance.sh
+│   └── utils.sh
+├── output/
+├── config/
+│   └── thresholds.conf
+├── tests/
+└── docs/
+
+---
+
+### File Naming
+- Scripts: snake_case.sh
+- Config files: .conf
+- Output files: .json
+
+---
+
+## Important Context
+
+### What You Should Know
+- This tool is meant for post-deployment validation, not deep SEO crawling.
+- Simplicity is more valuable than feature richness.
+- The system should remain portable across most Linux/macOS environments.
+
+---
+
+### Files to Focus On
+- /validator.sh — CLI orchestration  
+- /scripts/crawl.sh — crawler logic  
+- /scripts/analytics.sh — script detection  
+- /scripts/performance.sh — timing + payload checks  
+
+---
+
+### Files to Avoid
+- .env
+- /output/*
+- Generated artifacts
+
+---
+
+## Constraints & Preferences
+
+### Must Do
+- Keep dependencies near zero.
+- Ask before introducing Python.
+- Provide clear help output (./validator --help).
+- Favor deterministic behavior.
+
+---
+
+### Must Not Do
+- Do not introduce Node.
+- Do not containerize.
+- Do not over-engineer retry logic.
+- Do not build a GUI.
+
+---
+
+### Preferred Approaches
+- Explicit over implicit.
+- Predictable file outputs.
+- Linear logic over abstraction.
+- Readability over micro-optimizations.
+
+---
+
+## Dependencies & Tools
+
+### Allowed Dependencies
+- curl  
+- jq (optional but preferred for JSON)  
+- grep / sed / awk  
+
+---
+
+### Package Installation
+Ask before adding anything else.
+
+---
+
+### CLI Tools
+Available:
+- git  
+- bash  
+- curl  
+
+Restricted:
+- Docker  
+- Node ecosystem tools  
+
+---
+
+## Communication Preferences
+
+### How to Interact With Me
+- Explain architectural choices briefly.
+- Ask before expanding scope.
+- Do not gold-plate solutions.
+
+---
+
+### Output Format
+- Provide file paths.
+- Show scripts in full.
+- Include usage examples.
+- Summarize decisions briefly.
+
+---
+
+## Security & Privacy
+
+### Sensitive Information
+- Never log tokens or keys.
+- Do not store crawled credentials.
+
+---
+
+### Data Handling
+- Only public HTML should be processed.
+- No form submissions.
+- No authenticated crawling.
+
+---
+
+## Examples
+
+### Example Task Format
+
+Task: Add GA detection  
+Files: scripts/analytics.sh  
+Requirements:
+- Detect gtag and GTM patterns
+- Return structured JSON
+- Include homepage verification
+
+---
+
+### Example Output I Expect
+
+Added GA detection script.
+
+Changes:
+- Implemented pattern matching for GA4.
+- Added homepage check.
+- Output saved to analytics_report.json.
+
+All tests passed.
+
+---
+
+## Quick Reference
+
+### Common Commands for This Project
+
+./validator crawl https://example.com  
+./validator analytics https://example.com  
+./validator performance https://example.com  
+
+---
+
+### Useful Context
+This project should feel like a classic Unix utility — small, dependable, and transparent.
+
+---
+
+## Notes & TODOs
+
+### Current Known Issues
+- None (greenfield project)
+
+---
+
+### Future Improvements
+- [ ] Parallel crawling  
+- [ ] Lighthouse integration  
+- [ ] HTML report generation  
+- [ ] Broken link detection  
+
+---
+
+### Questions answered by Me
+- Should subdomains be crawled? no, but annotated when found.
+- What is the default crawl depth? 20
+- Should robots.txt be honored? yes.  output any restristicions/blocks placed by robots.txt
+
+---
+
+Last Updated: February 7, 2026  
+Template Version: 1.0

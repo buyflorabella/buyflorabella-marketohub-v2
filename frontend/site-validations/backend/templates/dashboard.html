@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Site Validator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Left column: Command form + Results list -->
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-terminal"></i> Run Command</h5>
+            </div>
+            <div class="card-body">
+                <form id="commandForm">
+                    <div class="mb-3">
+                        <label for="command" class="form-label">Command</label>
+                        <select class="form-select" id="command" name="command" required>
+                            {% for cmd in commands %}
+                            <option value="{{ cmd }}">{{ cmd }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="url" class="form-label">Target URL</label>
+                        <input type="url" class="form-control" id="url" name="url"
+                               value="{{ default_url }}" placeholder="https://example.com">
+                        <div class="form-text">Leave empty to use default from config.</div>
+                    </div>
+
+                    <!-- Analytics page URL (shown conditionally) -->
+                    <div class="mb-3 d-none" id="pageUrlGroup">
+                        <label for="pageUrl" class="form-label">Specific Page URL</label>
+                        <input type="url" class="form-control" id="pageUrl" name="page_url"
+                               placeholder="https://example.com/pricing">
+                        <div class="form-text">Validate analytics on a single page.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="verbose" name="verbose">
+                            <label class="form-check-label" for="verbose">Verbose</label>
+                        </div>
+                        <div class="form-check form-check-inline d-none" id="saveGroup">
+                            <input class="form-check-input" type="checkbox" id="saveHtml" name="save">
+                            <label class="form-check-label" for="saveHtml">Save HTML</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" id="runBtn">
+                        <i class="bi bi-play-fill"></i> Run
+                    </button>
+                </form>
+
+                <!-- Status indicator -->
+                <div class="mt-3 d-none" id="statusBar">
+                    <div class="d-flex align-items-center text-primary">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        <span id="statusText">Running...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results list -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-folder2-open"></i> Results</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-danger me-1" id="cleanOutput"
+                            title="Delete all output files">
+                        <i class="bi bi-trash3"></i> Clean
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" id="refreshResults">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="list-group list-group-flush" id="resultsList">
+                {% for f in result_files %}
+                <a href="{{ url_for('view_result', filename=f.name) }}"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi {{ 'bi-filetype-json text-warning' if f.is_json else 'bi-file-text text-secondary' }}"></i>
+                        <span class="ms-1">{{ f.name }}</span>
+                    </div>
+                    <small class="text-muted">{{ f.modified }}</small>
+                </a>
+                {% else %}
+                <div class="list-group-item text-muted">No output files yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right column: Live log panel -->
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-journal-text"></i> Live Output</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="clearLog">
+                    <i class="bi bi-trash"></i> Clear
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div id="logPanel" class="log-panel"></div>
+            </div>
+        </div>
+
+        <!-- Stdout result (shown after command completes) -->
+        <div class="card mt-3 d-none" id="stdoutCard">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-file-text"></i> Command Output</h5>
+            </div>
+            <div class="card-body">
+                <pre id="stdoutContent" class="mb-0" style="max-height: 400px; overflow: auto;"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}

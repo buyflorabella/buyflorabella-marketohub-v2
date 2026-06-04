@@ -1,0 +1,54 @@
+query Product($handle: String!) {
+    productByHandle(handle: $handle) {
+      id
+      title
+      handle
+      descriptionHtml
+      description
+      images(first: 10) {
+        nodes {
+          url
+          altText
+          width
+          height
+        }
+      }
+      variants(first: 1) {
+        nodes {
+          id
+          title
+          availableForSale
+          price {
+            amount
+            currencyCode
+          }
+          compareAtPrice {
+            amount
+            currencyCode
+          }
+          image {
+            url
+          }
+        }
+      }
+      collections(first: 1) {
+        nodes {
+          id
+          handle
+          title
+        }
+      }
+      overviewPlain: metafield(namespace: "custom", key: "product_overview") {
+        value
+        type
+      }
+      overviewMultiline: metafield(namespace: "custom", key: "product_overview_multiline") {
+        value
+        type
+      }
+      overviewRichtext: metafield(namespace: "custom", key: "product_overview_richtext") {
+        value
+        type
+      }
+    }
+  }

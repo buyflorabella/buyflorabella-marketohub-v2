@@ -1,0 +1,8 @@
+{
+  shop {
+    name
+    id
+    email
+    myshopifyDomain
+  }
+}

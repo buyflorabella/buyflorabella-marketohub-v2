@@ -1,0 +1,17 @@
+# Gunicorn service for ${SITE_NAME}
+# Deployed by script/deploy-backend.sh — do not edit on server manually.
+[Unit]
+Description=Gunicorn for ${SITE_NAME}
+After=network.target
+
+[Service]
+User=${GUNICORN_USER}
+Group=${GUNICORN_GROUP}
+WorkingDirectory=${WEBROOT}/backend
+EnvironmentFile=/etc/systemd/system/${SITE_NAME}.env
+ExecStart=/usr/local/bin/gunicorn -k eventlet -w ${WORKERS} -b 127.0.0.1:${BACKEND_PORT} ${BACKEND_APP_SCRIPT}:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

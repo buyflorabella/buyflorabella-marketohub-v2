@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Home — Platform Template{% endblock %}
+
+{% block content %}
+<h1>Platform Template</h1>
+<p>This backend provides three route layers: a REST API, Swagger documentation, and server-rendered pages.</p>
+
+<section class="card">
+    <h2>API Health Check</h2>
+    <p>Live response from <code>/api/health</code>:</p>
+    <pre id="health-output">Loading&hellip;</pre>
+</section>
+
+<section class="card">
+    <h2>Quick Links</h2>
+    <ul>
+        <li><a href="/api/docs" target="_blank" rel="noopener">Swagger UI</a> — interactive API documentation</li>
+        <li><a href="/api/health">Raw health endpoint</a> — JSON response</li>
+    </ul>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    fetch("/api/health")
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            document.getElementById("health-output").textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(function(err) {
+            document.getElementById("health-output").textContent = "Error: " + err.message;
+        });
+</script>
+{% endblock %}

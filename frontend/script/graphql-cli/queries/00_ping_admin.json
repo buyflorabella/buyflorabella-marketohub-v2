@@ -1,0 +1,5 @@
+{
+  "name": "PING Admin API",
+  "description": "Simple test to verify Admin API connection - returns shop name",
+  "api": "admin"
+}

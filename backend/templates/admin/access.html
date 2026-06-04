@@ -1,0 +1,422 @@
+{% extends "admin/base.html" %}
+{% block title %}Site Access{% endblock %}
+
+{% block content %}
+<h1>Site Access</h1>
+<p style="color:#888; font-size:0.85rem; margin-bottom:1.5rem;">
+    Control site visibility. Admins always bypass all gates.
+</p>
+
+<!-- ── Mode ─────────────────────────────────────────────────────── -->
+<div class="card" style="margin-bottom:1.5rem;">
+    <h2 style="margin-top:0;">Access Mode</h2>
+    <form id="mode-form">
+        <label style="display:block; margin-bottom:0.6rem;">
+            <input type="radio" name="mode" value="open">
+            <strong>Open</strong> — public access
+        </label>
+        <label style="display:block; margin-bottom:0.6rem;">
+            <input type="radio" name="mode" value="protected">
+            <strong>Protected (Coming Soon)</strong> — site password required
+        </label>
+        <label style="display:block; margin-bottom:0.6rem;">
+            <input type="radio" name="mode" value="maintenance">
+            <strong>Maintenance</strong> — holding page shown to all visitors
+        </label>
+        <div id="target-row" style="display:none; margin:0.8rem 0 0.4rem;">
+            <label>
+                Countdown target (UTC, optional):
+                <input type="datetime-local" id="maintenance-target" style="margin-left:0.5rem;">
+            </label>
+            <span id="target-status" style="display:inline-block; margin-left:0.6rem; font-size:0.78rem; font-weight:600; padding:0.15rem 0.5rem; border-radius:3px;"></span>
+            <div style="color:#888; font-size:0.8rem; margin-top:0.3rem;">Leave blank for no countdown.</div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:0.8rem;">Save Mode</button>
+        <span id="mode-msg" style="margin-left:1rem; font-size:0.85rem;"></span>
+    </form>
+</div>
+
+<!-- ── Site Password ─────────────────────────────────────────────── -->
+<div class="card" id="password-card" style="display:none; margin-bottom:1.5rem;">
+    <h2 style="margin-top:0;">Site Password</h2>
+    <p style="color:#888; font-size:0.85rem;">Visitors must enter this password to access the site in Protected mode.</p>
+
+    <div id="pw-current" style="margin-bottom:1.2rem; padding:0.8rem 1rem; background:#0d1320; border:1px solid #1e2d40; border-radius:4px; display:none;">
+        <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
+            <span style="color:#888; font-size:0.82rem; min-width:90px;">Current:</span>
+            <code id="pw-display" style="font-size:1rem; color:#00ff66; letter-spacing:0.06em; flex:1;"></code>
+            <button type="button" id="pw-toggle" onclick="togglePwVisibility()"
+                    style="font-size:0.78rem; padding:0.2rem 0.6rem; background:transparent; border:1px solid #2a3d50; border-radius:3px; color:#aaa; cursor:pointer;">Show</button>
+        </div>
+        <div style="margin-top:0.5rem;">
+            <span style="color:#555; font-size:0.78rem;">Last set: <span id="pw-set-at" style="color:#666;"></span></span>
+        </div>
+    </div>
+    <div id="pw-none" style="margin-bottom:1.2rem; color:#666; font-size:0.85rem; font-style:italic;">No password set.</div>
+
+    <form id="password-form">
+        <input type="text" id="new-pw" placeholder="New password (min 4 chars)"
+               style="width:220px; margin-right:0.5rem;">
+        <button type="submit" class="btn btn-primary">Set Password</button>
+        <span id="pw-msg" style="margin-left:1rem; font-size:0.85rem;"></span>
+    </form>
+</div>
+
+<!-- ── Gate Behavior ─────────────────────────────────────────────── -->
+<div class="card" id="gate-behavior-card" style="display:none; margin-bottom:1.5rem;">
+    <h2 style="margin-top:0;">Gate Behavior</h2>
+    <p style="color:#888; font-size:0.85rem;">
+        Controls what happens when a visitor who has already passed the gate refreshes the page.
+    </p>
+    <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer;">
+        <input type="checkbox" id="refresh-restores-gate" style="width:16px; height:16px;">
+        <span>Refresh restores site gate</span>
+    </label>
+    <p style="color:#666; font-size:0.8rem; margin:0.5rem 0 0.8rem 1.6rem;">
+        When checked: browser refresh always sends the visitor back through the password gate.<br>
+        When unchecked: the session remembers the unlock until the browser session ends.
+    </p>
+    <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; margin-top:0.8rem;">
+        <input type="checkbox" id="show-password-on-gate" style="width:16px; height:16px;">
+        <span>Show password on gate page</span>
+    </label>
+    <p style="color:#666; font-size:0.8rem; margin:0.5rem 0 0.8rem 1.6rem;">
+        When checked: the site password is displayed (masked, with Show/Hide toggle) on the gate
+        page so Early Access visitors can self-serve without contacting admin.
+    </p>
+    <button type="button" id="save-gate-behavior" class="btn btn-primary">Save</button>
+    <span id="gate-behavior-msg" style="margin-left:1rem; font-size:0.85rem;"></span>
+</div>
+
+<!-- ── Early Access ───────────────────────────────────────────────── -->
+<div class="card" id="early-access-card" style="display:none; margin-bottom:1.5rem;">
+    <h2 style="margin-top:0;">Early Access</h2>
+    <p style="color:#888; font-size:0.85rem;">
+        Controls the "Request Early Access" call-to-action shown on the gate page.
+    </p>
+    <label style="display:block; margin-bottom:0.6rem;">
+        <input type="radio" name="early-access-mode" value="disabled">
+        <strong>Disabled</strong> — no early access CTA shown
+    </label>
+    <label style="display:block; margin-bottom:0.6rem;">
+        <input type="radio" name="early-access-mode" value="instant">
+        <strong>Instant Unlock</strong> — clicking the button immediately opens the gate (no password needed)
+    </label>
+    <label style="display:block; margin-bottom:0.6rem;">
+        <input type="radio" name="early-access-mode" value="contact">
+        <strong>Contact Form</strong> — visitor submits name + email; sends notification to admin; gate stays locked
+    </label>
+    <button type="button" id="save-early-access" class="btn btn-primary" style="margin-top:0.8rem;">Save</button>
+    <span id="early-access-msg" style="margin-left:1rem; font-size:0.85rem;"></span>
+</div>
+
+<!-- ── Coming Soon Content ───────────────────────────────────────── -->
+<div class="card" style="margin-bottom:1.5rem;">
+    <h2 style="margin-top:0;">Coming Soon Page Content</h2>
+    <p style="color:#888; font-size:0.85rem;">Displayed when mode is <strong>Protected</strong>.</p>
+    <form id="cs-form">
+        <div style="margin-bottom:0.9rem;">
+            <label style="display:block; margin-bottom:0.3rem; color:#aaa; font-size:0.85rem;">Headline</label>
+            <input id="cs-title" type="text" style="width:100%; max-width:500px;"
+                   placeholder="Something extraordinary is coming.">
+        </div>
+        <div style="margin-bottom:0.9rem;">
+            <label style="display:block; margin-bottom:0.3rem; color:#aaa; font-size:0.85rem;">Tagline</label>
+            <input id="cs-tagline" type="text" style="width:100%; max-width:500px;"
+                   placeholder="Stay tuned.">
+        </div>
+        <div style="margin-bottom:0.9rem;">
+            <label style="display:block; margin-bottom:0.5rem; color:#aaa; font-size:0.85rem;">Media</label>
+            <label style="margin-right:1.5rem;">
+                <input type="radio" name="cs-media-type" value="none"> None
+            </label>
+            <label style="margin-right:1.5rem;">
+                <input type="radio" name="cs-media-type" value="image"> Image
+            </label>
+            <label>
+                <input type="radio" name="cs-media-type" value="video"> YouTube Video
+            </label>
+        </div>
+        <div id="cs-media-value-row" style="display:none; margin-bottom:0.9rem;">
+            <label id="cs-media-label" style="display:block; margin-bottom:0.3rem; color:#aaa; font-size:0.85rem;">Image URL</label>
+            <input id="cs-media-value" type="text" style="width:100%; max-width:500px;"
+                   placeholder="https://... or YouTube video ID">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Content</button>
+        <span id="cs-msg" style="margin-left:1rem; font-size:0.85rem;"></span>
+    </form>
+</div>
+
+<!-- ── Maintenance Content ───────────────────────────────────────── -->
+<div class="card" style="margin-bottom:1.5rem;">
+    <h2 style="margin-top:0;">Maintenance Page Content</h2>
+    <p style="color:#888; font-size:0.85rem;">Displayed when mode is <strong>Maintenance</strong>.</p>
+    <form id="maint-form">
+        <div style="margin-bottom:0.9rem;">
+            <label style="display:block; margin-bottom:0.3rem; color:#aaa; font-size:0.85rem;">Headline</label>
+            <input id="maint-title" type="text" style="width:100%; max-width:500px;"
+                   placeholder="We're updating things.">
+        </div>
+        <div style="margin-bottom:0.9rem;">
+            <label style="display:block; margin-bottom:0.3rem; color:#aaa; font-size:0.85rem;">Subtext</label>
+            <input id="maint-tagline" type="text" style="width:100%; max-width:500px;"
+                   placeholder="Back soon.">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Content</button>
+        <span id="maint-msg" style="margin-left:1rem; font-size:0.85rem;"></span>
+    </form>
+</div>
+
+<script>
+(function () {
+    const BASE = '/api/access-control';
+
+    function flash(el, msg, ok) {
+        el.textContent = msg;
+        el.style.color = ok ? '#3c3' : '#c33';
+        setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+
+    function toDatetimeLocal(iso) {
+        if (!iso) return '';
+        return iso.replace('Z', '').slice(0, 16);
+    }
+
+    function updateTargetStatus() {
+        var badge = document.getElementById('target-status');
+        var val   = document.getElementById('maintenance-target').value;
+        if (!val) {
+            badge.textContent = '';
+            badge.style.display = 'none';
+            return;
+        }
+        var ms = new Date(val + 'Z').getTime();
+        badge.style.display = 'inline-block';
+        if (ms <= Date.now()) {
+            badge.textContent = '⚠ EXPIRED';
+            badge.style.background = 'rgba(180,60,60,0.18)';
+            badge.style.color      = '#e05555';
+            badge.style.border     = '1px solid rgba(180,60,60,0.4)';
+        } else {
+            badge.textContent = '✓ ACTIVE';
+            badge.style.background = 'rgba(0,180,80,0.12)';
+            badge.style.color      = '#3c3';
+            badge.style.border     = '1px solid rgba(0,180,80,0.3)';
+        }
+    }
+
+    document.getElementById('maintenance-target')
+        .addEventListener('change', updateTargetStatus);
+
+    function fromDatetimeLocal(val) {
+        return val ? val + ':00Z' : '';
+    }
+
+    function toggleCards(mode) {
+        document.getElementById('target-row').style.display =
+            (mode === 'maintenance' || mode === 'protected') ? 'block' : 'none';
+        var showPw = mode === 'protected';
+        document.getElementById('password-card').style.display = showPw ? 'block' : 'none';
+        document.getElementById('gate-behavior-card').style.display = showPw ? 'block' : 'none';
+        document.getElementById('early-access-card').style.display = showPw ? 'block' : 'none';
+        if (showPw) { loadPassword(); loadGateBehavior(); }
+    }
+
+    function loadGateBehavior() {
+        fetch(BASE + '/settings', { credentials: 'include' })
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('refresh-restores-gate').checked =
+                    !!d.refresh_restores_gate;
+                document.getElementById('show-password-on-gate').checked =
+                    !!d.show_password_on_gate;
+                var eaMode = d.early_access_mode || 'disabled';
+                var radio = document.querySelector('input[name=early-access-mode][value="' + eaMode + '"]');
+                if (radio) radio.checked = true;
+            }).catch(() => {});
+    }
+
+    document.getElementById('save-gate-behavior').addEventListener('click', function () {
+        var rrg = document.getElementById('refresh-restores-gate').checked;
+        var spg = document.getElementById('show-password-on-gate').checked;
+        fetch(BASE + '/settings', {
+            method: 'PUT', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_restores_gate: rrg, show_password_on_gate: spg }),
+        }).then(r => r.json()).then(d => {
+            flash(document.getElementById('gate-behavior-msg'),
+                  d.success ? 'Saved.' : (d.message || 'Error.'), d.success);
+        });
+    });
+
+    document.getElementById('save-early-access').addEventListener('click', function () {
+        var radio = document.querySelector('input[name=early-access-mode]:checked');
+        var val = radio ? radio.value : 'disabled';
+        fetch(BASE + '/settings', {
+            method: 'PUT', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ early_access_mode: val }),
+        }).then(r => r.json()).then(d => {
+            flash(document.getElementById('early-access-msg'),
+                  d.success ? 'Saved.' : (d.message || 'Error.'), d.success);
+        });
+    });
+
+    function toggleMediaValue(type) {
+        const row   = document.getElementById('cs-media-value-row');
+        const label = document.getElementById('cs-media-label');
+        if (type === 'none') {
+            row.style.display = 'none';
+        } else {
+            row.style.display = 'block';
+            label.textContent = type === 'image' ? 'Image URL' : 'YouTube Video ID';
+            document.getElementById('cs-media-value').placeholder =
+                type === 'image' ? 'https://example.com/image.jpg' : 'dQw4w9WgXcQ';
+        }
+    }
+
+    // ── load mode ───────────────────────────────────────────────────
+    fetch(BASE + '/mode', { credentials: 'include' })
+        .then(r => r.json())
+        .then(d => {
+            const mode = d.raw_mode || d.mode || 'open';
+            document.querySelector(`input[name=mode][value="${mode}"]`).checked = true;
+            if (d.maintenance_target)
+                document.getElementById('maintenance-target').value = toDatetimeLocal(d.maintenance_target);
+            updateTargetStatus();
+            toggleCards(mode);
+            if (mode === 'protected') loadPassword();
+        });
+
+    // ── load password ────────────────────────────────────────────────
+    var _pwPlain = '';
+    var _pwVisible = false;
+
+    function loadPassword() {
+        fetch(BASE + '/site-password', { credentials: 'include' })
+            .then(r => r.json())
+            .then(d => {
+                _pwPlain = d.password || '';
+                if (_pwPlain) {
+                    document.getElementById('pw-none').style.display    = 'none';
+                    document.getElementById('pw-current').style.display = 'block';
+                    document.getElementById('pw-display').textContent   = '••••••••';
+                    _pwVisible = false;
+                    document.getElementById('pw-toggle').textContent    = 'Show';
+                    if (d.set_at) {
+                        var dt = new Date(d.set_at);
+                        document.getElementById('pw-set-at').textContent =
+                            dt.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+                    }
+                } else {
+                    document.getElementById('pw-none').style.display    = 'block';
+                    document.getElementById('pw-current').style.display = 'none';
+                }
+            }).catch(() => {});
+    }
+
+    window.togglePwVisibility = function () {
+        _pwVisible = !_pwVisible;
+        document.getElementById('pw-display').textContent  = _pwVisible ? _pwPlain : '••••••••';
+        document.getElementById('pw-toggle').textContent   = _pwVisible ? 'Hide' : 'Show';
+    };
+
+    // ── load content ─────────────────────────────────────────────────
+    fetch(BASE + '/content', { credentials: 'include' })
+        .then(r => r.json())
+        .then(d => {
+            const cs = d.coming_soon || {};
+            document.getElementById('cs-title').value   = cs.title   || '';
+            document.getElementById('cs-tagline').value = cs.tagline || '';
+            const mt = cs.media_type || 'none';
+            const radio = document.querySelector(`input[name=cs-media-type][value="${mt}"]`);
+            if (radio) radio.checked = true;
+            document.getElementById('cs-media-value').value = cs.media_value || '';
+            toggleMediaValue(mt);
+
+            const mn = d.maintenance || {};
+            document.getElementById('maint-title').value   = mn.title   || '';
+            document.getElementById('maint-tagline').value = mn.tagline || '';
+        });
+
+    // ── mode radios ──────────────────────────────────────────────────
+    document.querySelectorAll('input[name=mode]').forEach(r =>
+        r.addEventListener('change', () => toggleCards(r.value))
+    );
+
+    document.querySelectorAll('input[name=cs-media-type]').forEach(r =>
+        r.addEventListener('change', () => toggleMediaValue(r.value))
+    );
+
+    // ── mode form ────────────────────────────────────────────────────
+    document.getElementById('mode-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const mode   = document.querySelector('input[name=mode]:checked').value;
+        const target = fromDatetimeLocal(document.getElementById('maintenance-target').value);
+        fetch(BASE + '/mode', {
+            method: 'PUT', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode, maintenance_target: target }),
+        }).then(r => r.json()).then(d => {
+            flash(document.getElementById('mode-msg'), d.success ? 'Saved.' : (d.message || 'Error.'), d.success);
+            if (d.success) toggleCards(mode);
+        });
+    });
+
+    // ── password form ─────────────────────────────────────────────────
+    document.getElementById('password-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const pw = document.getElementById('new-pw').value;
+        fetch(BASE + '/site-password', {
+            method: 'PUT', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw }),
+        }).then(r => r.json()).then(d => {
+            flash(document.getElementById('pw-msg'), d.success ? 'Password updated.' : (d.message || 'Error.'), d.success);
+            if (d.success) {
+                document.getElementById('new-pw').value = '';
+                loadPassword();
+            }
+        });
+    });
+
+    // ── coming-soon content form ─────────────────────────────────────
+    document.getElementById('cs-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const payload = {
+            coming_soon: {
+                title:       document.getElementById('cs-title').value.trim(),
+                tagline:     document.getElementById('cs-tagline').value.trim(),
+                media_type:  document.querySelector('input[name=cs-media-type]:checked').value,
+                media_value: document.getElementById('cs-media-value').value.trim(),
+            }
+        };
+        fetch(BASE + '/content', {
+            method: 'PUT', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        }).then(r => r.json()).then(d => {
+            flash(document.getElementById('cs-msg'), d.success ? 'Saved.' : (d.message || 'Error.'), d.success);
+        });
+    });
+
+    // ── maintenance content form ──────────────────────────────────────
+    document.getElementById('maint-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const payload = {
+            maintenance: {
+                title:   document.getElementById('maint-title').value.trim(),
+                tagline: document.getElementById('maint-tagline').value.trim(),
+            }
+        };
+        fetch(BASE + '/content', {
+            method: 'PUT', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        }).then(r => r.json()).then(d => {
+            flash(document.getElementById('maint-msg'), d.success ? 'Saved.' : (d.message || 'Error.'), d.success);
+        });
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,8 @@
+{
+  "name": "Storefront - Test Product Metafield",
+  "description": "Test fetching a product with metafields via Storefront API",
+  "api": "storefront",
+  "variables": {
+    "handle": "5lb-bag"
+  }
+}

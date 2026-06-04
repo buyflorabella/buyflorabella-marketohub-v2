@@ -1,0 +1,25 @@
+# ═══════════════════════════════════════════════════════════════════════
+# buyflorabella-%i-backend.service
+# ═══════════════════════════════════════════════════════════════════════
+[Unit]
+Description=buyflorabella Backend (%i)
+After=network.target mongod.service
+
+[Service]
+Type=simple
+
+# Dynamic WorkingDirectory using the site's webroot + the instance identifier (%i)
+WorkingDirectory=/var/www/html/buyflorabella/%i/backend
+EnvironmentFile=/var/www/html/buyflorabella/%i/systemd/buyflorabella-%i.env
+
+ExecStart=/usr/local/bin/gunicorn \
+    -k eventlet \
+    -w ${WORKERS} \
+    -b ${BACKEND_HOST}:${BACKEND_PORT} \
+    app:app
+
+Restart=on-failure
+SyslogIdentifier=buyflorabella-%i-backend
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,153 @@
+query TestProductMetafield($handle: String!) {
+  product(handle: $handle) {
+    id
+    title
+    handle
+    description
+    descriptionHtml
+    productType
+    vendor
+    tags
+    createdAt
+    updatedAt
+    publishedAt
+    onlineStoreUrl
+    totalInventory
+    
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    
+    compareAtPriceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    
+    options {
+      id
+      name
+      values
+    }
+    
+    variants(first: 100) {
+      edges {
+        node {
+          id
+          title
+          sku
+          barcode
+          price {
+            amount
+            currencyCode
+          }
+          compareAtPrice {
+            amount
+            currencyCode
+          }
+          availableForSale
+          weight
+          weightUnit
+          requiresShipping
+          selectedOptions {
+            name
+            value
+          }
+          image {
+            url
+            altText
+            width
+            height
+          }
+        }
+      }
+    }
+    
+    images(first: 10) {
+      edges {
+        node {
+          id
+          url
+          altText
+          width
+          height
+        }
+      }
+    }
+    
+    featuredImage {
+      id
+      url
+      altText
+      width
+      height
+    }
+    
+    media(first: 10) {
+      edges {
+        node {
+          mediaContentType
+          alt
+          ... on MediaImage {
+            id
+            image {
+              url
+              altText
+            }
+          }
+          ... on Video {
+            id
+            sources {
+              url
+              mimeType
+            }
+          }
+          ... on ExternalVideo {
+            id
+            embedUrl
+            host
+          }
+          ... on Model3d {
+            id
+            sources {
+              url
+              mimeType
+            }
+          }
+        }
+      }
+    }
+    
+    collections(first: 10) {
+      edges {
+        node {
+          id
+          title
+          handle
+        }
+      }
+    }
+    
+    seo {
+      title
+      description
+    }
+    
+    metafield(namespace: "custom", key: "product_overview_multiline") {
+      value
+      type
+    }
+  }
+}

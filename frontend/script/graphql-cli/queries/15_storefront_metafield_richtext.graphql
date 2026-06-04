@@ -1,0 +1,22 @@
+# Query: custom.product_overview_richtext (rich_text_field)
+# NOTE: Rich text metafields return JSON that needs to be parsed
+# The value will be a JSON string like:
+# {"type":"root","children":[{"type":"paragraph","children":[{"type":"text","value":"..."}]}]}
+
+query GetProductOverviewRichtext($handle: String!) {
+  product(handle: $handle) {
+    id
+    title
+
+    metafield(namespace: "custom", key: "product_overview_richtext") {
+      id
+      namespace
+      key
+      value
+      type
+      description
+      createdAt
+      updatedAt
+    }
+  }
+}

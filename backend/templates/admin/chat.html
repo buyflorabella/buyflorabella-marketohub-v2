@@ -1,0 +1,410 @@
+{% extends "admin/base.html" %}
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+    <h1 style="margin:0;">Chat</h1>
+    <div style="display:flex; gap:0.5rem; align-items:center;">
+        <button class="btn btn-primary" onclick="newRoom()">+ New Room</button>
+        <button class="btn btn-danger" onclick="clearChat()">Clear Room</button>
+    </div>
+</div>
+<p style="color:#888; font-size:0.875rem; margin-bottom:0.75rem;">
+    All rooms. Select a room to view messages.
+    <span style="color:#aaa; font-size:0.8rem;">· Double-click a message to play it.</span>
+</p>
+
+<div style="display:flex; gap:1rem; align-items:flex-start;">
+
+    <!-- Room list sidebar -->
+    <div id="room-sidebar" style="width:220px; flex-shrink:0; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; overflow:hidden;">
+        <div style="padding:0.5rem 0.75rem; font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #e2e8f0;">
+            Rooms
+        </div>
+        <div id="room-list" style="max-height:600px; overflow-y:auto;">
+            <div style="padding:0.75rem; color:#94a3b8; font-size:0.85rem;">Loading…</div>
+        </div>
+    </div>
+
+    <!-- Chat panel -->
+    <div style="flex:1; min-width:0;">
+
+        <!-- Room header -->
+        <div id="room-header" style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem; padding:0.5rem 0.75rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:0.9rem;">
+            <span id="room-name-display" style="font-weight:600; color:#1e293b;">Support Chat</span>
+            <span id="room-type-badge" style="font-size:0.72rem; padding:2px 7px; border-radius:999px; background:#e0f2fe; color:#0369a1; font-weight:500;">support</span>
+            <span style="flex:1;"></span>
+            <button id="copy-room-link" onclick="copyRoomLink()" style="padding:3px 8px; font-size:0.75rem; border:1px solid #cbd5e1; border-radius:4px; background:#fff; cursor:pointer; display:none;">
+                Copy Link
+            </button>
+        </div>
+
+        <!-- Audio controls -->
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.75rem; margin-bottom:0.75rem; font-size:0.85rem;">
+            <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                <input type="checkbox" id="audio-enabled" onchange="onAudioToggle(this.checked)">
+                Audio
+            </label>
+            <div id="voice-selectors" style="display:none; flex-wrap:wrap; gap:0.75rem; align-items:center;">
+                <label style="display:flex; align-items:center; gap:0.4rem;">
+                    Actor 1 (user in):
+                    <select id="voice-in" onchange="_voiceIn=this.value; _processedIds.clear(); _isInitialLoad=true;"
+                        style="font-size:0.8rem; padding:0.2rem 0.4rem; border:1px solid #d1d5db; border-radius:4px;">
+                    </select>
+                </label>
+                <label style="display:flex; align-items:center; gap:0.4rem;">
+                    Actor 2 (admin out):
+                    <select id="voice-out" onchange="_voiceOut=this.value; _processedIds.clear(); _isInitialLoad=true;"
+                        style="font-size:0.8rem; padding:0.2rem 0.4rem; border:1px solid #d1d5db; border-radius:4px;">
+                    </select>
+                </label>
+                <button type="button" onclick="playAll()"
+                    style="padding:0.25rem 0.75rem; font-size:0.8rem; cursor:pointer; border:1px solid #d1d5db; border-radius:4px; background:#f9fafb;">
+                    ▶ Play All
+                </button>
+            </div>
+        </div>
+
+        <div class="card" style="max-width:680px;">
+            <div id="chat-messages"
+                style="height:380px; overflow-y:auto; display:flex; flex-direction:column; gap:0.5rem; padding:0.25rem 0; margin-bottom:1rem;">
+                <p style="color:#999; font-size:0.9rem;">Loading…</p>
+            </div>
+
+            <div style="display:flex; gap:0.5rem;">
+                <input type="text" id="chat-input" placeholder="Reply as admin…"
+                    style="flex:1; padding:0.45rem 0.6rem; border:1px solid #d1d5db; border-radius:4px; font-size:0.9rem;"
+                    onkeydown="if(event.key==='Enter') sendMsg()">
+                <button class="btn btn-primary" onclick="sendMsg()">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clear Chat confirmation modal -->
+<div id="clear-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; padding:2rem; max-width:380px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <h3 style="margin:0 0 0.75rem;">Clear messages in this room?</h3>
+        <p id="clear-modal-desc" style="color:#555; margin:0 0 1.5rem; font-size:0.95rem;"></p>
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+            <button class="btn" onclick="closeClearModal()">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmClear()">Delete messages</button>
+        </div>
+    </div>
+</div>
+
+<!-- New Room modal -->
+<div id="new-room-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; padding:2rem; max-width:400px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <h3 style="margin:0 0 1rem;">Create New Room</h3>
+        <div style="margin-bottom:0.75rem;">
+            <label style="display:block; font-size:0.85rem; color:#555; margin-bottom:0.25rem;">Room name (optional)</label>
+            <input type="text" id="new-room-name" placeholder="e.g. Project Alpha"
+                style="width:100%; padding:0.4rem 0.6rem; border:1px solid #d1d5db; border-radius:4px; font-size:0.9rem; box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:1.5rem;">
+            <label style="display:block; font-size:0.85rem; color:#555; margin-bottom:0.25rem;">Type</label>
+            <select id="new-room-type" style="padding:0.4rem 0.6rem; border:1px solid #d1d5db; border-radius:4px; font-size:0.9rem;">
+                <option value="public">Public (UUID link access)</option>
+                <option value="support">Support</option>
+            </select>
+        </div>
+        <div id="new-room-result" style="display:none; margin-bottom:1rem; padding:0.5rem 0.75rem; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:4px; font-size:0.85rem; word-break:break-all;"></div>
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+            <button class="btn" onclick="closeNewRoomModal()">Close</button>
+            <button class="btn btn-primary" onclick="createRoom()">Create Room</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var _currentRoom   = 'support';
+var _lastCount     = 0;
+var _messages      = [];
+var _processedIds  = new Set();
+var _isInitialLoad = true;
+var _audioEnabled  = false;
+var _voices        = [];
+var _voiceIn       = '';
+var _voiceOut      = '';
+var _pollInterval  = null;
+
+// ---- Room management ----
+
+function loadRooms() {
+    fetch('/api/chat/rooms', { credentials: 'include' })
+        .then(function(r) { return r.json(); })
+        .then(function(rooms) {
+            var list = document.getElementById('room-list');
+            if (!rooms.length) {
+                list.innerHTML = '<div style="padding:0.75rem; color:#94a3b8; font-size:0.85rem;">No rooms yet.</div>';
+                return;
+            }
+            list.innerHTML = rooms.map(function(room) {
+                var isActive  = room.room_id === _currentRoom;
+                var bg        = isActive ? '#dbeafe' : '#fff';
+                var color     = isActive ? '#1d4ed8' : '#374151';
+                var name      = escHtml(room.name || room.room_id.substring(0, 8) + '…');
+                var badge     = room.room_type === 'support' ? '🔒' : '🔗';
+                var count     = room.message_count !== undefined ? (' <span style="color:#94a3b8;font-size:0.75rem;">(' + room.message_count + ')</span>') : '';
+                return '<div onclick="selectRoom(' + JSON.stringify(room.room_id) + ')" ' +
+                    'style="padding:0.6rem 0.75rem; cursor:pointer; background:' + bg + '; ' +
+                    'color:' + color + '; font-size:0.85rem; border-bottom:1px solid #e2e8f0; ' +
+                    'font-weight:' + (isActive ? '600' : '400') + ';">' +
+                    badge + ' ' + name + count + '</div>';
+            }).join('');
+        })
+        .catch(function() {});
+}
+
+function selectRoom(roomId) {
+    _currentRoom   = roomId;
+    _lastCount     = 0;
+    _messages      = [];
+    _processedIds.clear();
+    _isInitialLoad = true;
+
+    // Update header
+    fetch('/api/chat/rooms/' + roomId, { credentials: 'include' })
+        .then(function(r) { return r.json(); })
+        .then(function(room) {
+            var name  = room.name || roomId.substring(0, 8) + '…';
+            document.getElementById('room-name-display').textContent = name;
+            var badge = document.getElementById('room-type-badge');
+            badge.textContent = room.room_type;
+            badge.style.background = room.room_type === 'support' ? '#e0f2fe' : '#f0fdf4';
+            badge.style.color      = room.room_type === 'support' ? '#0369a1' : '#15803d';
+            var copyBtn = document.getElementById('copy-room-link');
+            copyBtn.style.display = room.room_type === 'support' ? 'none' : 'inline-block';
+        })
+        .catch(function() {});
+
+    loadRooms();
+    fetchMessages();
+}
+
+function copyRoomLink() {
+    var url = window.location.origin + '/chat?room=' + _currentRoom;
+    navigator.clipboard.writeText(url).then(function() {
+        showFlash('Room link copied to clipboard.', 'success');
+    });
+}
+
+// ---- New Room modal ----
+
+function newRoom() {
+    document.getElementById('new-room-name').value = '';
+    document.getElementById('new-room-result').style.display = 'none';
+    document.getElementById('new-room-modal').style.display = 'flex';
+}
+
+function closeNewRoomModal() {
+    document.getElementById('new-room-modal').style.display = 'none';
+    loadRooms();
+}
+
+function createRoom() {
+    var name = document.getElementById('new-room-name').value.trim();
+    var type = document.getElementById('new-room-type').value;
+    fetch('/api/chat/rooms', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name || null, room_type: type })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.room) {
+            var link = window.location.origin + data.url;
+            var result = document.getElementById('new-room-result');
+            result.style.display = 'block';
+            result.innerHTML = '✅ Created. Share link:<br><strong>' + escHtml(link) + '</strong>' +
+                ' <button onclick="navigator.clipboard.writeText(' + JSON.stringify(link) + ').then(function(){showFlash(\'Copied!\',\'success\')})" ' +
+                'style="padding:2px 6px; font-size:0.75rem; cursor:pointer; border:1px solid #d1d5db; border-radius:4px; margin-left:6px;">Copy</button>';
+        } else {
+            showFlash('Failed to create room.', 'error');
+        }
+    })
+    .catch(function() { showFlash('Failed to create room.', 'error'); });
+}
+
+// ---- TTS voices ----
+
+function loadVoices() {
+    var available = window.speechSynthesis.getVoices().filter(function(v) {
+        return v.lang.startsWith('en');
+    });
+    _voices = available;
+    if (!available.length) return;
+    ['voice-in', 'voice-out'].forEach(function(id) {
+        var sel = document.getElementById(id);
+        var cur = sel.value;
+        sel.innerHTML = available.map(function(v) {
+            return '<option value="' + escHtml(v.name) + '">' + escHtml(v.name) + '</option>';
+        }).join('');
+        if (cur) sel.value = cur;
+    });
+    if (!_voiceIn)  { _voiceIn  = available[0].name; document.getElementById('voice-in').value  = _voiceIn;  }
+    if (!_voiceOut) { _voiceOut = (available[1] || available[0]).name; document.getElementById('voice-out').value = _voiceOut; }
+}
+
+if (window.speechSynthesis) {
+    loadVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined)
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function speak(text, voiceName) {
+    if (!window.speechSynthesis || !text.trim()) return;
+    var u = new SpeechSynthesisUtterance(text);
+    var v = _voices.find(function(v) { return v.name === voiceName; });
+    if (v) u.voice = v;
+    window.speechSynthesis.speak(u);
+}
+
+function speakMsg(text, isAdmin) {
+    if (!_audioEnabled) return;
+    speak(text, isAdmin ? _voiceOut : _voiceIn);
+}
+
+function playAll() {
+    window.speechSynthesis.cancel();
+    _messages.forEach(function(m) {
+        speak(m.message, m.sender_type === 'admin' ? _voiceOut : _voiceIn);
+    });
+}
+
+function onAudioToggle(enabled) {
+    _audioEnabled = enabled;
+    document.getElementById('voice-selectors').style.display = enabled ? 'flex' : 'none';
+    if (!enabled && window.speechSynthesis) window.speechSynthesis.cancel();
+    _processedIds.clear();
+    _isInitialLoad = true;
+}
+
+// ---- Chat rendering ----
+
+function renderMessages(msgs) {
+    _messages = msgs;
+    var box = document.getElementById('chat-messages');
+    if (msgs.length === _lastCount) return;
+    _lastCount = msgs.length;
+
+    if (!msgs.length) {
+        box.innerHTML = '<p style="color:#999; font-size:0.9rem;">No messages yet.</p>';
+        _isInitialLoad = false;
+        return;
+    }
+
+    if (!_isInitialLoad && _audioEnabled) {
+        msgs.forEach(function(m) {
+            if (!_processedIds.has(m.id)) {
+                speak(m.message, m.sender_type === 'admin' ? _voiceOut : _voiceIn);
+            }
+        });
+    }
+    msgs.forEach(function(m) { _processedIds.add(m.id); });
+    _isInitialLoad = false;
+
+    box.innerHTML = msgs.map(function(m) {
+        var isAdmin  = m.sender_type === 'admin';
+        var bg       = isAdmin ? '#dbeafe' : '#f3f4f6';
+        var align    = isAdmin ? 'flex-end' : 'flex-start';
+        var label    = isAdmin ? 'Support' : escHtml(m.display_name || m.user_email);
+        var ts       = new Date(m.timestamp).toLocaleString();
+        var msgEscJs = escJs(m.message);
+        var dblClick = 'ondblclick="speakMsg(\'' + msgEscJs + '\',' + isAdmin + ')"';
+        var cursor   = _audioEnabled ? 'cursor:pointer;' : '';
+        var title    = _audioEnabled ? ' title="Double-click to play"' : '';
+        return '<div style="display:flex;flex-direction:column;align-items:' + align + ';">' +
+            '<div ' + dblClick + title +
+            ' style="background:' + bg + ';padding:0.5rem 0.75rem;border-radius:6px;max-width:80%;' + cursor + 'user-select:none;">' +
+            '<span style="font-size:0.75rem;color:#6b7280;font-weight:600;">' + label + '</span>' +
+            '<span style="font-size:0.72rem;color:#999;margin-left:0.5rem;">' + ts + '</span><br>' +
+            '<span style="user-select:text;">' + escHtml(m.message) + '</span>' +
+            '</div></div>';
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+}
+
+// ---- Fetch / Send ----
+
+function fetchMessages() {
+    fetch('/api/chat/messages?room=' + encodeURIComponent(_currentRoom), { credentials: 'include' })
+        .then(function(r) { return r.json(); })
+        .then(renderMessages)
+        .catch(function() {});
+}
+
+function sendMsg() {
+    var inputEl = document.getElementById('chat-input');
+    var msg = inputEl.value.trim();
+    if (!msg) return;
+    inputEl.value = '';
+    fetch('/api/chat/send', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, room_id: _currentRoom })
+    })
+    .then(function() {
+        if (_audioEnabled) speak(msg, _voiceOut);
+        _lastCount = 0;
+        fetchMessages();
+    })
+    .catch(function() { showFlash('Failed to send.', 'error'); });
+}
+
+// ---- Clear ----
+
+function clearChat() {
+    var name = document.getElementById('room-name-display').textContent;
+    document.getElementById('clear-modal-desc').textContent =
+        'This will permanently delete every message in "' + name + '". Cannot be undone.';
+    document.getElementById('clear-modal').style.display = 'flex';
+}
+function closeClearModal() { document.getElementById('clear-modal').style.display = 'none'; }
+function confirmClear() {
+    closeClearModal();
+    fetch('/admin/chat/clear?room=' + encodeURIComponent(_currentRoom), {
+        method: 'POST', credentials: 'include'
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            _lastCount = 0; _messages = []; _processedIds.clear(); _isInitialLoad = true;
+            fetchMessages();
+            loadRooms();
+            showFlash('Cleared ' + data.deleted + ' messages.', 'success');
+        } else {
+            showFlash('Failed to clear.', 'error');
+        }
+    })
+    .catch(function() { showFlash('Failed to clear.', 'error'); });
+}
+
+// ---- Helpers ----
+
+function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escJs(s) {
+    return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,'');
+}
+
+document.getElementById('clear-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeClearModal();
+});
+document.getElementById('new-room-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeNewRoomModal();
+});
+
+// ---- Init ----
+
+loadRooms();
+selectRoom('support');
+_pollInterval = setInterval(function() { fetchMessages(); loadRooms(); }, 5000);
+</script>
+{% endblock %}
