@@ -93,6 +93,7 @@ log_info "(excludes: node_modules, .env files, build artifacts)"
 echo ""
 
 rsync -a --delete --omit-dir-times \
+  --exclude='.git' \
   --exclude='node_modules/' \
   --exclude='.env' \
   --exclude='.env.*' \
