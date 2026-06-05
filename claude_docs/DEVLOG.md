@@ -7,6 +7,34 @@ Append-only session history. Newest entries at top.
 
 ---
 
+## 2026-06-05 — Task 6 PENDING: Shopify Oxygen Deployment — Stage 1 Planning Complete
+
+**Status:** PENDING
+**Deliverables:** `build_docs/task6_design_doc.md`, `build_docs/task6_plan.md`
+**Historical reference:** `build_docs/task5_design_doc.md` (full compatibility assessment)
+
+Planning phase complete for getting the BuyFloraBella Hydrogen frontend deploying to Shopify Oxygen. No code changed. Key outputs:
+
+**DD corrections vs task5:**
+- Active repo is `buyflorabella/buyflorabella-marketohub-v2` (not `hydrogen-frontend-v7`, which is historical)
+- `prod/` worktree is on `main` branch, not `master`; only `dev` and `main` branches exist
+
+**Architecture decisions:**
+- `main` branch = Shopify-only, flat Hydrogen-at-root structure (no frontend/ subdirectory)
+- `master` = renamed VPS production branch (currently `main`)
+- New `main/` worktree at `/buyflorabella/main/` for local Shopify build validation
+- `shopify-promote.sh` = separate script that copies `frontend/` from `master` → `main/`, commits, pushes
+- `update-production.sh` untouched in behavior; references updated `main` → `master`
+- Flask backend stays on VPS permanently
+
+**6-block execution plan:**
+- Block 0 (blocking first): rename `main` → `master`, update scripts
+- Blocks 1–4: workflow fix, code cleanup, worktree creation, promote script
+- Block 5: Shopify Admin (human — reconnect storefront, deploy token, env vars)
+- Block 6: first promotion + Oxygen validation
+
+---
+
 ## 2026-06-04 — Task 4 DONE: Hydrogen Architecture Assessment Re-framed for BuyFloraBella
 
 **Status:** DONE  

@@ -2,11 +2,11 @@
 set -e
 
 # Release Candidate Creator
-# Single entry point for committing dev work, syncing main, and tagging a release.
+# Single entry point for committing dev work, syncing master, and tagging a release.
 #
 # Phases:
 #   1. Commit any pending changes (interactive — stages and commits everything)
-#   2. Pull main → dev (merge any changes made directly to main)
+#   2. Pull master → dev (merge any changes made directly to master)
 #   3. Bump version, tag, and push to GitHub
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -130,10 +130,10 @@ fi
 echo ""
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Phase 2: Sync main → dev
+# Phase 2: Sync master → dev
 # ─────────────────────────────────────────────────────────────────────────────
 log_sep
-log_info "Phase 2 — Sync main → dev"
+log_info "Phase 2 — Sync master → dev"
 echo ""
 
 log_info "Fetching from origin..."
@@ -179,18 +179,18 @@ if $_ORIGIN_DEV_EXISTS; then
   fi
 fi
 
-# ── Check 2: origin/main has commits local dev is missing ──
-MASTER_AHEAD=$(git log HEAD..origin/main --oneline 2>/dev/null || true)
+# ── Check 2: origin/master has commits local dev is missing ──
+MASTER_AHEAD=$(git log HEAD..origin/master --oneline 2>/dev/null || true)
 
 if [[ -n "$MASTER_AHEAD" ]]; then
-  log_warn "main has commits not yet in dev:"
+  log_warn "master has commits not yet in dev:"
   echo ""
   echo "$MASTER_AHEAD" | sed 's/^/  /'
   echo ""
 
-  if confirm "Merge origin/main into dev now?"; then
+  if confirm "Merge origin/master into dev now?"; then
     echo ""
-    if ! git merge origin/main --no-edit; then
+    if ! git merge origin/master --no-edit; then
       echo ""
       log_error "Merge conflict. Resolve conflicts manually, then re-run this script."
       log_info "Commands:"
@@ -200,12 +200,12 @@ if [[ -n "$MASTER_AHEAD" ]]; then
       log_info "  git merge --abort        — cancel and start over"
       exit 1
     fi
-    log_success "Merged origin/main into dev"
+    log_success "Merged origin/master into dev"
   else
-    log_warn "Skipping main merge. Proceeding anyway — note that dev may be behind main."
+    log_warn "Skipping master merge. Proceeding anyway — note that dev may be behind master."
   fi
 else
-  log_success "dev is up to date with main (no merge needed)"
+  log_success "dev is up to date with master (no merge needed)"
 fi
 
 echo ""
@@ -321,5 +321,5 @@ echo ""
 log_info "Next steps:"
 log_info "1. Switch to the prod/ worktree"
 log_info "2. Run: ./script/update-production.sh"
-log_info "   Phase 0 will merge dev → main automatically (no PR needed)"
+log_info "   Phase 0 will merge dev → master automatically (no PR needed)"
 echo ""

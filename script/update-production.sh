@@ -5,7 +5,7 @@ set -e
 # Runs in prod/ worktree only
 #
 # Phases:
-#   0. Merge dev → main  (replaces the manual GitHub PR step)
+#   0. Merge dev → master  (replaces the manual GitHub PR step)
 #   1. Pre-update validation
 #   2. Code update + test
 #   3. Install frontend + restart backend
@@ -85,10 +85,10 @@ fi
 log_success "Working directory is clean"
 
 # ============================================================================
-# PHASE 0: Merge dev → main
+# PHASE 0: Merge dev → master
 # ============================================================================
 
-log_phase "PHASE 0: Merge dev → main"
+log_phase "PHASE 0: Merge dev → master"
 
 log_info "Checking push access to origin..."
 _SSH_OK=false
@@ -119,25 +119,25 @@ if ! git show-ref --verify --quiet refs/heads/dev; then
   exit 1
 fi
 
-UNMERGED=$(git log main..dev --oneline 2>/dev/null || true)
+UNMERGED=$(git log master..dev --oneline 2>/dev/null || true)
 
 if [[ -z "$UNMERGED" ]]; then
-  log_success "main is already up to date with dev — no merge needed"
+  log_success "master is already up to date with dev — no merge needed"
 else
   COMMIT_COUNT=$(echo "$UNMERGED" | wc -l | tr -d ' ')
-  log_info "${COMMIT_COUNT} commit(s) in dev not yet in main:"
+  log_info "${COMMIT_COUNT} commit(s) in dev not yet in master:"
   echo ""
-  git log main..dev --oneline --format="  %C(yellow)%h%Creset  %ad  %s" --date=short 2>/dev/null \
+  git log master..dev --oneline --format="  %C(yellow)%h%Creset  %ad  %s" --date=short 2>/dev/null \
     || echo "$UNMERGED" | sed 's/^/  /'
   echo ""
 
-  if ! confirm "Merge these commits from dev into main now?"; then
-    log_error "Cannot deploy without merging dev into main. Aborting."
+  if ! confirm "Merge these commits from dev into master now?"; then
+    log_error "Cannot deploy without merging dev into master. Aborting."
     exit 1
   fi
 
   echo ""
-  log_info "Merging dev into main..."
+  log_info "Merging dev into master..."
 
   MERGE_OUTPUT=$(git merge dev --no-edit 2>&1)
   MERGE_EXIT=$?
@@ -159,15 +159,15 @@ else
     exit 1
   fi
 
-  log_success "Merged dev into main"
+  log_success "Merged dev into master"
   echo ""
 
   if $_SSH_OK; then
-    log_info "Pushing main to origin..."
-    git push origin main
-    log_success "main pushed to origin"
+    log_info "Pushing master to origin..."
+    git push origin master
+    log_success "master pushed to origin"
   else
-    log_warn "Skipping remote push (SSH unavailable — local main is ahead of origin)"
+    log_warn "Skipping remote push (SSH unavailable — local master is ahead of origin)"
   fi
 fi
 
@@ -240,17 +240,17 @@ fi
 log_phase "PHASE 2: Code Update"
 
 if $_SSH_OK; then
-  if git ls-remote --exit-code origin main >/dev/null 2>&1; then
-    log_info "Pulling latest main (fast-forward after Phase 0 merge)..."
-    git pull origin main
+  if git ls-remote --exit-code origin master >/dev/null 2>&1; then
+    log_info "Pulling latest master (fast-forward after Phase 0 merge)..."
+    git pull origin master
     log_success "Code updated from origin"
   else
-    log_info "origin/main does not exist yet — pushing for the first time..."
-    git push -u origin main
-    log_success "main pushed to origin"
+    log_info "origin/master does not exist yet — pushing for the first time..."
+    git push -u origin master
+    log_success "master pushed to origin"
   fi
 else
-  log_info "SSH unavailable — code already at latest (Phase 0 merged dev into main locally)"
+  log_info "SSH unavailable — code already at latest (Phase 0 merged dev into master locally)"
   log_success "Code is current (local-only mode)"
 fi
 

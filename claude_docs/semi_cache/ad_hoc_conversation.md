@@ -11,6 +11,20 @@ project and were carried over when the workflow was migrated here on 2026-06-04.
 
 ---
 
+[2026-06-05 16:35] task6_plan.md is marked as PENDING. execute that plan as written and produce task6_outcome.md as a result.
+
+[2026-06-05 16:28] TASK6 IS PENDING, create an _outcome.md document as a result.
+
+[2026-06-05 16:24] TASK6 IS PLAN_REQUESTED
+
+[2026-06-05 16:19] read task6 open questions answered. have one more iteration at this document, especially to clarify that we have a separate build stage for shopify, that update-production.sh targets the 'master' branch which stays in the 'prod/' worktree. create an additional worktree named 'main' which will track the 'main' branch for shopify so we can validate the shopify build. also, answer the new question from the #4 open question, re: do we need to make a new shopify store before we build this, or the other way around?
+
+[2026-06-05 16:10] the name of the repo for shopify must be main. So, what we imagine is that: dev + master branches both have the frontend/ + backend/ code. 'main' is what appears to be an official branch, but is really the 'shopify build' branch. So dev imagines a 'build for shopify stage' whereby the frontend code is built, and then placed into the 'main' branch, lacking the frontend/ and backend/ and only the build code for shopify. refine the task6 DD. shopify only looks at main for production.
+
+[2026-06-05 16:06] in task5_design_doc: we want to go with this: ### 4.3 Work Tree Strategy **Recommended: Keep the current VPS work tree strategy intact.** there are also notes in section 2.1 from the developer and section 4.1 from the developer. regarding hydrogen-frontend-v7 being historical. Take these notes and, since we have not gotten our 'final DD yet' we want a new DD, keeping this one as historic, and make it task6_design_doc.md - taking the input here, discarding our 'options to pick from' and moving forwards with the new refactor of the site for shopify as stage 1. the choice to 'rescaffold' using updated shopify hydrogen base is deferred. right now our goal is to get this into shopify by using the 'main' branch in github with the proper code structure.
+
+[2026-06-05 10:37] do that shit now and lets gooooo
+
 [2026-06-04 19:13] yeah, but we have frontend/src and all that structure. the reason i told you to look at the prod github repo is driving the question: where is the document root that shopify expects to pick up the launch point for the code?  can we have that code be in our frontend/ directory and shopify still finds it?  this should be a clear yes / no, or if yes and a config in shopify or more info needed then okay but should be straightforward to answer.   then if NO, how do we handle this.  we want a somewhat brief explanation
 
 [2026-06-04 18:56] Please review the attached Task 5 Intent Document and perform a comprehensive architectural assessment of the repository: https://github.com/buyflorabella/hydrogen-frontend-v7

@@ -83,6 +83,10 @@ The outer repo likely uses the inner repo as a submodule or synchronizes via `gi
 
 **`UNKNOWN`** Whether the outer VPS repo is pushed to any remote, and the exact sync mechanism between VPS `dev` branch and GitHub `main` branch.
 
+
+1.2 developer notes: assumption #1 is wrong.  hydrogen-frontend-v7 was a codebase which was ported into this one.  it is historical from now on and should have no meaning here.  this code here in frontend/ is the authoritative source now.
+dev/ is a gitworktree on the dev branch.  
+
 ### 1.3 Build and Runtime Stack
 
 | Layer | Technology | Notes |
@@ -261,9 +265,16 @@ The repository already has a functioning Oxygen deployment workflow. Option C me
 
 **GitHub `hydrogen-frontend-v7`:**
 - `main` branch → 211 commits, Oxygen deployment target
+
+4.1 developers notes: https://github.com/buyflorabella/buyflorabella-marketohub-v2 is the repo for this site.  discard references to hydrogen-frontend-v7.  that was the historical git repo this codebase came from.  that is al.
+
 - Oxygen workflow fires on ALL branch pushes
 
 **`UNKNOWN`** Whether VPS `dev`/`master` branches are the same git repo as GitHub `main`, or whether they are separate repos synchronized via subtree or other mechanism.
+
+
+Developers note: yes, dev / master are the same git repo as main if we choose to use master.
+
 
 ### 4.2 Recommended Branch Strategy
 
