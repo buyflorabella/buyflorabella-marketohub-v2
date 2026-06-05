@@ -7,6 +7,16 @@ Append-only session history. Newest entries at top.
 
 ---
 
+## 2026-06-05 — Task 8 DONE: Product PDF Buttons Section
+
+**Status:** DONE
+**Commit:** `cbbe803`
+**Deliverables:** `ProductPdfButtons.tsx` (new), `HomePage.tsx` (1 import + 1 JSX line)
+
+Added a lightweight two-button section to the home page that opens product PDF brochures in a new tab — AERATOR PLUS and YIELDBOOST. Buttons use the site's existing pink/yellow color tokens (`#ff0080` / `#d4ff00`). Placed between `EducationSection` and `VideoReelsIframe`. Zero existing code modified. URLs hardcoded to Shopify CDN as specified. See `tasks/task8_evidence.md` for full file log.
+
+---
+
 ## 2026-06-05 — Task 7 DONE: GitHub Repository Mirror Workflow
 
 **Status:** DONE (code complete; 8 human setup steps remaining)
