@@ -11,6 +11,8 @@ project and were carried over when the workflow was migrated here on 2026-06-04.
 
 ---
 
+[2026-06-05 18:06] search ~dxb/.ssh for the deploy key and provide it here to add to boardmansgameremotedeveloper account for that repo. provide commands for me to validate it works
+
 [2026-06-05 18:03] TASK7 dd is set to PENDING. execute it and produce an outcome document as a result.
 
 [2026-06-05 17:59] read task7_intent.md and come up with the DD

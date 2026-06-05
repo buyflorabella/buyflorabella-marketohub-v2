@@ -179,10 +179,12 @@ echo ""
 
 log_phase "PHASE 4: Push to GitHub"
 
-log_warn "Pushing to origin/main will trigger the Oxygen deployment workflow."
+DEPLOY_REMOTE="git@github.com:boardmansgameremotedeveloper/buyflorabella-marketohub-v2.git"
+
+log_warn "Pushing main to both repos will trigger the Oxygen deployment workflow."
 log_warn "Ensure Shopify Admin has been configured (Block 5 in task6_plan.md):"
-log_warn "  - Storefront 1000084126 connected to buyflorabella-marketohub-v2"
-log_warn "  - OXYGEN_DEPLOYMENT_TOKEN_1000084126 set as GitHub secret"
+log_warn "  - Storefront 1000084126 connected to boardmansgameremotedeveloper/buyflorabella-marketohub-v2"
+log_warn "  - OXYGEN_DEPLOYMENT_TOKEN_1000084126 set as GitHub secret in boardmansgameremotedeveloper"
 log_warn "  - All env vars configured in Oxygen dashboard"
 echo ""
 
@@ -199,16 +201,21 @@ if ! $_SSH_OK; then
   log_warn "SSH unavailable — commit is local only."
   log_info "To push when SSH is available:"
   log_info "  cd ${MAIN_WORKTREE} && git push origin main"
+  log_info "  git -C ${MAIN_WORKTREE} push ${DEPLOY_REMOTE} main"
   exit 0
 fi
 
 if ! confirm "Push main to GitHub? This triggers Oxygen deployment at buyflorabella.com."; then
   log_info "Push cancelled. Commit is local. Run when ready:"
   log_info "  cd ${MAIN_WORKTREE} && git push origin main"
+  log_info "  git -C ${MAIN_WORKTREE} push ${DEPLOY_REMOTE} main"
   exit 0
 fi
 
 git push origin main
-log_success "Pushed origin/main — Oxygen deployment triggered"
+log_success "Pushed origin/main (buyflorabella)"
+
+git push "${DEPLOY_REMOTE}" main
+log_success "Pushed to boardmansgameremotedeveloper — Oxygen deployment triggered"
 echo ""
-log_info "Monitor deployment: GitHub → buyflorabella-marketohub-v2 → Actions tab"
+log_info "Monitor deployment: GitHub → boardmansgameremotedeveloper/buyflorabella-marketohub-v2 → Actions tab"
