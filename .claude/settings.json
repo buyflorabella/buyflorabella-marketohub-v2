@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(*)",
+      "Write(/var/www/html/buyflorabella/dev/claude_docs/exec_logs/*)",
+      "Write(/var/www/html/buyflorabella/dev/claude_docs/build_docs/*)",
+      "Write(/var/www/html/buyflorabella/dev/claude_docs/tasks/*)",
+      "Write(/var/www/html/buyflorabella/dev/claude_docs/TASK_outcome.md)"
+    ],
+    "additionalDirectories": [
+      "/root/.claude",
+      "/root/.claude/projects",
+      "/var/www/html/buyflorabella/dev/.claude",
+      "/var/www/html/buyflorabella/dev/claude_docs",
+      "/var/www/html/buyflorabella/dev/claude_docs/exec_logs",
+      "/etc/httpd/conf.d",
+      "/etc/httpd/conf",
+      "/etc/systemd/system",
+      "/var/log/httpd",
+      "/usr/bin",
+      "/usr/local/bin",
+      "/tmp"
+    ]
+  }
+}
