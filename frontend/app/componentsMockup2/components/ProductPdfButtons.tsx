@@ -1,6 +1,6 @@
 export default function ProductPdfButtons() {
   return (
-    <section className="bg-[#f5f5f0] py-10">
+    <section className="bg-[#f5f5f0] pt-40 pb-10">
       <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center gap-6">
         <a
           href="https://cdn.shopify.com/s/files/1/0640/4833/2903/files/FB-Direct_Ag_Solutions_Areator_Plus_Flyer_PROD.pdf?v=1780594887"
