@@ -7,6 +7,36 @@ Append-only session history. Newest entries at top.
 
 ---
 
+## 2026-06-05 — Task 6 IN_PROGRESS: Blocks 0–4 Executed
+
+**Status:** IN_PROGRESS (Blocks 0–4 done; Block 5 human; Block 6 pending)
+**Commits:** `e852b1e` (blocks 0–2), `3ad0f8f` (block 4)
+
+Executed on `dev` branch. All remote pushes pending SSH access.
+
+**Block 0 — Branch rename:**
+- `master` created from `main`; `prod/` worktree switched to `master`
+- `update-production.sh` + `release-candidate.sh` updated (`main` → `master` throughout)
+- `origin/main` deletion pending (must change GitHub default branch first)
+
+**Block 1 — Oxygen workflow trigger fixed:** `on: [push]` → `on: push: branches: [main]`
+
+**Block 2 — Cleanup:**
+- Credential audit: `.env.dxb-reference` was never tracked (outer .gitignore protected it); added `.env.*` to inner `frontend/.gitignore`
+- Archived 5 stale routes to `frontend/app/_archived_routes/` (SPA-era or param-mismatch versions)
+- Deleted 1 empty route file
+- Deleted `frontend/src/` (20 files) and `frontend/app/componentsMockup/` (15 files)
+- `componentsMockup2/main.tsx` confirmed not in SSR module graph
+
+**Block 3 — Worktrees:** `/buyflorabella/main/` created on empty orphan `main` branch
+
+**Block 4 — `script/shopify-promote.sh`:** rsync `frontend/` → `main/`, validates structure, commits, prompts then pushes
+
+**Pending (human):** Block 5 — Shopify Admin (reconnect storefront, deploy token, env vars)
+**Pending (after Block 5 + SSH):** Block 6 — first promotion + Oxygen validation
+
+---
+
 ## 2026-06-05 — Task 6 PENDING: Shopify Oxygen Deployment — Stage 1 Planning Complete
 
 **Status:** PENDING

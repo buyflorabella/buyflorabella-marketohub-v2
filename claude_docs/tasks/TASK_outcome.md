@@ -4,7 +4,7 @@ _Overwritten after every significant task._
 
 **Last task:** Task 6 — Shopify Oxygen Deployment: Stage 1 (planning phase)
 **Date:** 2026-06-05
-**Status:** PENDING (plan approved, execution not yet started)
+**Status:** IN_PROGRESS (Blocks 0–4 done; Block 5 requires human; Block 6 pending)
 **Deliverables:** `build_docs/task6_design_doc.md`, `build_docs/task6_plan.md`, `tasks/task6_outcome.md`
 
 Planning complete. Goal: deploy existing Hydrogen frontend to Shopify Oxygen via `main` branch in `buyflorabella-marketohub-v2`. No rescaffold.
