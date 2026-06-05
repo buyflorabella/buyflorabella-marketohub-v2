@@ -102,6 +102,7 @@ rsync -a --delete --omit-dir-times \
   --exclude='/dist/' \
   --exclude='/.react-router/' \
   --exclude='/.shopify/' \
+  --exclude='/script/' \
   "${FRONTEND_SRC}/" "${MAIN_WORKTREE}/"
 
 log_success "Rsync complete"
