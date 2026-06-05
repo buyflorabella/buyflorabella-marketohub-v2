@@ -92,7 +92,7 @@ log_info "Rsyncing frontend/ contents into main/ worktree..."
 log_info "(excludes: node_modules, .env files, build artifacts)"
 echo ""
 
-rsync -a --delete \
+rsync -a --delete --omit-dir-times \
   --exclude='node_modules/' \
   --exclude='.env' \
   --exclude='.env.*' \
