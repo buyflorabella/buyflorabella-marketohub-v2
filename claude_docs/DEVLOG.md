@@ -7,6 +7,24 @@ Append-only session history. Newest entries at top.
 
 ---
 
+## 2026-06-05 — Task 7 DONE: GitHub Repository Mirror Workflow
+
+**Status:** DONE (code complete; 8 human setup steps remaining)
+**Commit:** `8be725e` on `dev` branch
+**Deliverable:** `.github/workflows/mirror-to-boardmansgame.yml`
+
+Implemented automatic full mirror from `buyflorabella/buyflorabella-marketohub-v2` to `boardmansgameremotedeveloper/buyflorabella-marketohub-v2` via GitHub Actions. Triggers on all push/delete/tag events. Uses `git clone --bare` + `git push --mirror` — the only pattern that faithfully copies all branches, tags, and propagates deletions.
+
+Key details:
+- `if: github.repository == 'buyflorabella/...'` guard prevents re-triggering in the mirror repo
+- `workflow_dispatch` trigger added for manual runs (initial sync, recovery)
+- `OXYGEN_DEPLOYMENT_TOKEN_1000084126` goes in `boardmansgameremotedeveloper` repo (not canonical), so Oxygen workflow only fires there
+- SSH deploy key auth (`MIRROR_DEPLOY_KEY` secret in canonical repo, public key as deploy key in mirror repo)
+
+Human steps required before first run: create mirror repo, generate SSH key pair, install deploy key, set secrets in both repos, connect Shopify to mirror repo. See `tasks/task7_outcome.md` for full procedure.
+
+---
+
 ## 2026-06-05 — Task 6 IN_PROGRESS: Blocks 0–4 Executed
 
 **Status:** IN_PROGRESS (Blocks 0–4 done; Block 5 human; Block 6 pending)
