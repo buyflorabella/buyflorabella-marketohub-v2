@@ -1,0 +1,36 @@
+name: Mirror to boardmansgameremotedeveloper
+
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  delete:
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    name: Mirror all refs to boardmansgameremotedeveloper
+    runs-on: ubuntu-latest
+    # Guard: only run in the canonical repo, not in the mirror itself
+    if: github.repository == 'buyflorabella/buyflorabella-marketohub-v2'
+
+    steps:
+      - name: Write SSH deploy key
+        run: |
+          mkdir -p ${{ runner.temp }}
+          echo "${{ secrets.MIRROR_DEPLOY_KEY }}" > ${{ runner.temp }}/mirror_key
+          chmod 600 ${{ runner.temp }}/mirror_key
+
+      - name: Clone bare repository
+        run: git clone --bare https://github.com/buyflorabella/buyflorabella-marketohub-v2.git
+
+      - name: Push mirror to boardmansgameremotedeveloper
+        run: |
+          cd buyflorabella-marketohub-v2.git
+          git push --mirror git@github.com:boardmansgameremotedeveloper/buyflorabella-marketohub-v2.git
+        env:
+          GIT_SSH_COMMAND: >-
+            ssh
+            -i ${{ runner.temp }}/mirror_key
+            -o StrictHostKeyChecking=accept-new
+            -o IdentitiesOnly=yes
