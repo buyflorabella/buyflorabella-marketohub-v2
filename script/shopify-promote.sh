@@ -168,8 +168,16 @@ git status --short | head -30
 echo ""
 
 COMMIT_MSG="shopify-promote: from master@${SOURCE_SHA}"
+
 git add -A
-git commit -m "${COMMIT_MSG}"
+
+if [[ -n $(git status --porcelain) ]]; then
+    git commit -m "${COMMIT_MSG}"
+else
+    log_warn "No code changes detected. Creating redeploy commit."
+    git commit --allow-empty -m "${COMMIT_MSG} (redeploy)"
+fi
+
 log_success "Committed: ${COMMIT_MSG}"
 echo ""
 
