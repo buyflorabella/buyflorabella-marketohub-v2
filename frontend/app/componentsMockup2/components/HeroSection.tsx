@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 gradient-offwhite">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden gradient-offwhite">
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-64 h-64 bg-[#7cb342] rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#8b6f47] rounded-full blur-3xl"></div>
@@ -27,21 +27,41 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12 grid lg:grid-cols-2 gap-16 items-center">
         <div className="text-left">
-          <div className="inline-block bg-[#7cb342]/10 border border-[#7cb342]/30 px-4 py-2 rounded-full mb-6">
-            <Link to="/shop" className="gradient-green text-white px-8 py-4 rounded-full font-bold text-base hover:scale-110 hover:shadow-2xl hover:shadow-[#7cb342]/50 transition-all duration-300 shadow-xl flex items-center gap-2 group shiny-border relative z-10">
-              <span className="relative z-10 flex items-center gap-2">BUY NOW</span>
-            </Link>
-          </div>
 
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold heading-font text-gray-900 mb-6 leading-[0.95]">
-            Wake Up<br />Your Soil
-          </h1>
+         <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold heading-font text-gray-900 mb-6 leading-[0.95]">
+          Wake Up Your Soil{" "}
+          <Link
+            to="/shop"
+            className="
+              inline-flex items-center align-middle
+              px-4 py-1
+              ml-2
 
-          <p className="text-xl md:text-2xl text-gray-700 mb-6 font-medium leading-relaxed">
-            Bio trace minerals that make every drop of fertilizer work harder.
-          </p>
+              text-sm md:text-base font-bold uppercase tracking-widest
+              text-white
+
+              bg-[#7cb342]
+              border border-[#5a8f2b]
+
+              rounded-full
+              shadow-lg
+
+              animate-pulse
+
+              hover:scale-110 hover:shadow-2xl hover:shadow-[#7cb342]/40
+              transition-all duration-300
+
+              whitespace-nowrap
+            "
+          >
+            BUY NOW
+          </Link>{" "}
+          Today
+        </h1>
+
+
 
           <div className="relative block lg:hidden">
             <div className="relative">
@@ -55,15 +75,12 @@ export default function HeroSection() {
           </div>
 
           <p className="text-base md:text-lg text-gray-600 mb-6 leading-relaxed max-w-xl">
-            Flora Bella delivers commercial-grade trace minerals to home gardens. With a single 
-            addition to your watering routine—or blended directly into your soil—you strengthen 
-            soil health, support resilient plants, and bring deeper color and vitality to 
-            every bed, pot, and vegetable garden.
+            Bio trace minerals is an organic, ancient, formed mineral deposit that is quarried, composted and refined to bring all the natural microbes and biology to life.
           </p>
 
           <div className="bg-[#7cb342]/5 border border-[#7cb342]/20 rounded-2xl p-6 mb-10 max-w-xl">
             <p className="text-sm text-gray-700 leading-relaxed">
-              <span className="font-semibold text-gray-900">Trusted for Over 25 Years.</span> Flora Bella works with naturally occurring mineral complexes that have supported commercial agriculture for decades. These minerals are thoughtfully processed to preserve biological integrity and improve plant availability—supporting soil as a living system, not a substrate. Now available in nearby retail stores and delivered directly to your door.
+              <span className="font-semibold text-gray-900">Flora Bella Living trace mineral</span> is made from an ancient deposit of plant coral and animal life from thousands and thousands of years ago That was encapsulated in an iron Preserving all the natural occurring biology such as beneficial, facilities, natural occurring, micro Rizal, a diverse amount of amino acids and other occurring goodies with our proprietary blend to bring the perfect balance for Micro nutrition, an optimal soil health.
             </p>
           </div>
 
