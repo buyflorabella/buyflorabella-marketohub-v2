@@ -16,7 +16,7 @@ export default function ProductPdfButtons() {
           rel="noopener noreferrer"
           className="inline-block px-8 py-4 rounded-lg bg-[#ff0080] border-2 border-[#d4ff00] text-white font-bold uppercase tracking-widest text-sm hover:bg-[#cc0066] transition-colors duration-200"
         >
-          YIELDBOOST
+          YIELD---BOOST
         </a>
       </div>
     </section>
