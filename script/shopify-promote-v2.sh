@@ -13,7 +13,8 @@ echo "[INFO] Deploying Shopify Oxygen build from master@${SOURCE_SHA}"
 
 # ── Sync frontend → worktree ─────────────────────────────
 rsync -a --delete \
-  --exclude='.git' \
+  --exclude='.git' \ 
+  --exclude='.github' \ 
   --exclude='node_modules' \
   --exclude='.env*' \
   --exclude='dist' \
