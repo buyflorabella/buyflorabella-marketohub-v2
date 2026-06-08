@@ -10,11 +10,13 @@ import EducationSection from '../components/EducationSection';
 //import VideoReels from '../components/VideoReels';
 import VideoReelsIframe from '../components/VideoReelsIframe';
 import CommunityCallout from '../components/CommunityCallout';
+import ProductPdfButtons from '../components/ProductPdfButtons';
 
 export default function HomePage() {
   return (
     <>
       <AnnouncementBar />
+      <ProductPdfButtons />
       <HeroSection />
       <ReassuranceStrip />
       <BenefitsGrid />
