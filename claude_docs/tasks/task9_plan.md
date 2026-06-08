@@ -1,141 +1,117 @@
 # Task 9 Plan — Port & Domain Audit + Gap Resolution
-**Status:** PENDING
+**Status:** DONE
 **Intent:** `claude_docs/tasks/task9_intent.md`
 
 ---
 
-## What the Outcome Document Will Contain
+## Context: How the Environment Works
 
-The `task9_outcome.md` will record the full audit table, gap analysis, and
-specific fixes applied or recommended. This plan defines the investigation
-scope and what to check for each gap.
+**dev/ worktree** — always `npm run dev` (Vite dev server):
+- `manage --frontend` → Hydrogen dev server on **15220** → `frontend.dev.buyflorabella.boardmansgame.com`
+- `manage --backend`  → Flask gunicorn on **15221** → `admin.dev.buyflorabella.boardmansgame.com`
 
----
+**prod/ worktree** — two modes sharing one backend port (by design):
+- Systemd (`buyflorabella-frontend.service`) → `shopify hydrogen preview` (built) on **20220** → `buyflorabella.boardmansgame.com`
+- Debugging: stop systemd → `manage --backend` on **20221** (same port as systemd backend — intentional, not a gap)
 
-## Block 0 — Site-Management Port Registry
-
-Report the full `buyflorabella` entry from
-`/opt/operations/site-management/inventory/group_vars/all/ports.yml`
-verbatim so the expected port assignments are on record.
-
-**Already found (pre-plan inventory):**
-
-| Env  | Role     | Port  |
-|------|----------|-------|
-| dev  | frontend | 15220 |
-| dev  | backend  | 15221 |
-| prod | frontend | 20220 |
-| prod | backend  | 20221 |
-
-vhost_prefix: prod=`010`, dev=`090`/`091`
+**The single gap:** `frontend.buyflorabella.boardmansgame.com` is in the intent but has no Apache vhost and no port assigned. This is the **prod dev-mode frontend server**, distinct from the built production server, and it needs its own port so both can run simultaneously.
 
 ---
 
-## Block 1 — Active Apache Vhosts Cross-Reference
+## Port Registry (site-management) — Current State
 
-Check every file in `/etc/httpd/conf.d/` matching buyflorabella and map:
-`ServerName → ProxyPass port → process expected → process actually running`
+```yaml
+buyflorabella:
+  ports:
+    dev:
+      frontend: 15220
+      backend:  15221
+    prod:
+      frontend: 20220   # systemd workerd (built)
+      backend:  20221
+```
 
-**Already found:**
-
-| Conf file | ServerName | Port | What it serves |
-|---|---|---|---|
-| `010-buyflorabella.boardmansgame.com.conf` | `buyflorabella.boardmansgame.com` | 20220 | Prod built (workerd/systemd) |
-| `011-admin.buyflorabella.boardmansgame.com.conf` | `admin.buyflorabella.boardmansgame.com` | 20221 | Prod Flask |
-| `090-frontend.dev.buyflorabella.boardmansgame.com.conf` | `frontend.dev.buyflorabella.boardmansgame.com` | 15220 | Dev Hydrogen dev server |
-| `091-admin.dev.buyflorabella.boardmansgame.com.conf` | `admin.dev.buyflorabella.boardmansgame.com` | 15221 | Dev Flask |
-
-Extra vhosts in `/etc/httpd/conf.d/` NOT in the project repo:
-- `025-dev1-frontend.buyflorabella.com.conf` → DocumentRoot (not a proxy)
-- `025-dev2-frontend.buyflorabella.com.conf` → DocumentRoot (not a proxy)
-- `075-buyflorabella.com.conf` → DocumentRoot (buyflorabella.com, unrelated)
+`frontend.buyflorabella.boardmansgame.com` has no port here. That's what we're adding.
 
 ---
 
-## Block 2 — Live Process Audit
+## Block 0 — Assign New Port
 
-Check which expected ports are actually listening right now:
+Add `frontend_dev: 20222` under `prod:` in
+`/opt/operations/site-management/inventory/group_vars/all/ports.yml`.
 
-**Already found:**
-
-| Port  | Process | Status |
-|-------|---------|--------|
-| 15220 | `node` / `npm run dev` (Hydrogen dev server) | ✅ listening |
-| 15221 | Flask/gunicorn (dev backend) | ❌ **NOT listening** |
-| 20220 | `workerd` via systemd `buyflorabella-frontend.service` | ✅ listening |
-| 20221 | `python3`/gunicorn (prod Flask) | ✅ listening |
-
-**Gap 1:** Dev backend (port 15221) is down. `admin.dev.buyflorabella.boardmansgame.com` is unreachable.
+```yaml
+    prod:
+      frontend:     20220   # systemd workerd (built) → buyflorabella.boardmansgame.com
+      frontend_dev: 20222   # manage --frontend (dev server) → frontend.buyflorabella.boardmansgame.com
+      backend:      20221
+```
 
 ---
 
-## Block 3 — Script Behaviour Audit
+## Block 1 — Update settings.prod.txt
 
-Trace what each manage command actually starts, per worktree:
+Add / update:
+```
+FRONTEND_DEV_PORT=20222
+FRONTEND_DEV_DOMAIN=frontend.buyflorabella.boardmansgame.com
+```
 
-**dev/ worktree:**
-- `./script/manage --frontend` → `run-frontend.sh` → `exec npm run dev -- --host --port 15220`
-  - Starts Hydrogen Vite dev server. Correct for dev.
-- `./script/manage --backend` → `run-backend.sh` → starts Flask on port 15221. Correct for dev.
+`run-frontend.sh` in the prod/ worktree currently binds to `${FRONTEND_PORT}` (20220).
+We need it to bind to 20222 when used for dev/inspection.
 
-**prod/ worktree:**
-- `./script/manage --frontend` → `run-frontend.sh` → `exec npm run dev -- --host --port 20220`
-  - ⚠️ Starts a **Vite dev server** on port 20220 — same port as systemd (`workerd` built preview).
-  - These conflict: can't run simultaneously.
-- `./script/manage --backend` → `run-backend.sh` → starts Flask on port 20221. OK for debugging.
+Two options — choose one in execution:
+- **Option A (simpler):** Change `FRONTEND_PORT` in `settings.prod.txt` to `20222`. The built systemd service has its port hardcoded (`--port 20220`), so this won't affect it.
+- **Option B:** Add a separate `run-frontend-dev.sh` that reads `FRONTEND_DEV_PORT`.
 
-**systemd `buyflorabella-frontend.service`:**
-- `ExecStart=/usr/bin/npx shopify hydrogen preview --port 20220`
-- Runs the BUILT frontend (production mode). This is the `buyflorabella.boardmansgame.com` server.
-
-**Gap 2:** `manage --frontend` in prod/ and the systemd service share port 20220. The user cannot run
-the prod/ dev server for inspection without first stopping the built systemd service. There is no
-dedicated port/vhost for "dev mode server running in prod/ worktree".
+**Recommendation: Option A** — changing `FRONTEND_PORT` in settings.prod.txt to `20222` is the cleanest. The systemd service is decoupled from settings.prod.txt for its port.
 
 ---
 
-## Block 4 — Missing Domain: `frontend.buyflorabella.boardmansgame.com`
+## Block 2 — Create Apache Vhost
 
-The intent specifies this domain as "dev version of react server running in prod".
-No Apache vhost exists for it. No port is reserved for it in site-management.
+New file: `apache/010-frontend.buyflorabella.boardmansgame.com.conf`
 
-**Gap 3:** `frontend.buyflorabella.boardmansgame.com` has no vhost and no dedicated port.
-If we want this, we need:
-1. A new port (e.g. `20222` or reuse `20220` under a separate domain with port disambiguation)
-2. A new Apache vhost config `010-frontend.buyflorabella.boardmansgame.com.conf`
-3. An entry in `ports.yml` for prod `frontend_dev: 20222` (or similar)
-4. Update `run-frontend.sh` in prod to use the new port
+```apache
+# HTTP redirect
+<VirtualHost *:80>
+    ServerName frontend.buyflorabella.boardmansgame.com
+    Redirect permanent "/" "https://frontend.buyflorabella.boardmansgame.com/"
+</VirtualHost>
 
-Alternatively: the "dev mode server in prod" could use the existing `manage --frontend` flow
-after stopping systemd — no permanent second port needed, just a workflow clarification.
+# HTTPS reverse proxy → port 20222
+<VirtualHost *:443>
+    ServerName frontend.buyflorabella.boardmansgame.com
+    SSLEngine on
+    ProxyPreserveHost On
+    ProxyPass        "/" "http://127.0.0.1:20222/"
+    ProxyPassReverse "/" "http://127.0.0.1:20222/"
+    SSLCertificateFile    /etc/letsencrypt/live/buyflorabella-prod/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/buyflorabella-prod/privkey.pem
+    Include /etc/letsencrypt/options-ssl-apache.conf
+    ErrorLog  /var/log/httpd/buyflorabella-frontend-dev_error.log
+    CustomLog /var/log/httpd/buyflorabella-frontend-dev_access.log combined
+</VirtualHost>
+```
 
----
-
-## Block 5 — Gap Summary and Remediation Options
-
-The outcome document will present a clear gap table and for each gap give:
-- **Immediate fix** (what can be done now, minimal change)
-- **Full fix** (proper permanent solution)
-
-**Gap 1 — Dev Flask not running (port 15221)**
-- Immediate fix: `cd /var/www/html/buyflorabella/dev && ./script/manage --backend`
-- Permanent fix: systemd service for dev backend (like `buyflorabella-dev.service` stub already exists in `systemd/`)
-
-**Gap 2 — Port conflict: manage --frontend in prod vs systemd on 20220**
-- Immediate fix: `systemctl stop buyflorabella-frontend` before running `manage --frontend` in prod
-- Full fix: assign a dedicated second port (e.g. `20222`) for "prod/ dev server", new vhost `frontend.buyflorabella.boardmansgame.com`, update `manage --frontend` in prod to use it, add to ports.yml
-
-**Gap 3 — No `frontend.buyflorabella.boardmansgame.com` vhost**
-- Same as Gap 2 full fix above
+**SSL cert:** Verify `buyflorabella-prod` cert covers `frontend.buyflorabella.boardmansgame.com`
+(check with `certbot certificates`). If not, expand it before the admin copies the vhost.
 
 ---
 
-## Execution Order (when set to PENDING)
+## Block 3 — DNS Check
 
-1. Record Block 0 registry extract verbatim
-2. Build the full cross-reference table (Blocks 1–2)
-3. Record script behaviour findings (Block 3)
-4. Document Gap 2 + Gap 3 as linked (same root cause)
-5. Start dev backend to close Gap 1 immediately
-6. Write gap summary with immediate vs full fix recommendations
-7. Write `task9_outcome.md`
+Verify `frontend.buyflorabella.boardmansgame.com` resolves to the server IP.
+If missing, the admin adds the A record before activating the vhost.
+
+---
+
+## Block 4 — Outcome Document
+
+Write `task9_outcome.md` containing:
+- Full port registry table (site-management vs actual config vs what's expected)
+- Complete vhost table (all 5 active buyflorabella vhosts including new one)
+- Settings.prod.txt delta
+- SSL cert status for new domain
+- DNS status
+- Human steps remaining (cert expansion if needed, admin copies vhost, httpd -t + reload)
