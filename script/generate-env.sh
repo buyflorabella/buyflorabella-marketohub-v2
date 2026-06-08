@@ -10,11 +10,18 @@ source "${_SETTINGS_FILE}"
 
 FRONTEND_ENV="${PROJECT_ROOT}/${FRONTEND_DIR}/.env"
 
-# Preserve non-VITE_ lines (Shopify PUBLIC_* / PRIVATE_* credentials etc.)
-# Only update the VITE_* block so credentials aren't wiped on every run.
+# Preserve non-VITE_ / non-PUBLIC_STORE_ lines (Shopify credentials etc.)
+# PUBLIC_STORE_* vars are written from settings so they are excluded from preservation.
 _PRESERVED=""
 if [[ -f "${FRONTEND_ENV}" ]]; then
-  _PRESERVED=$(grep -v '^VITE_' "${FRONTEND_ENV}" | grep -v '^# Auto-generated' || true)
+  _PRESERVED=$(grep -v '^VITE_' "${FRONTEND_ENV}" \
+    | grep -v '^# VITE vars' \
+    | grep -v '^# Auto-generated' \
+    | grep -v '^PUBLIC_STORE_LOCKED' \
+    | grep -v '^PUBLIC_STORE_PASSWORD' \
+    | grep -v '^# Store gate' \
+    | grep -v '^[[:space:]]*$' \
+    || true)
 fi
 
 cat > "${FRONTEND_ENV}" <<EOF
@@ -27,9 +34,13 @@ VITE_ENV=${ENV}
 VITE_OTP_DEV_MODE=${OTP_DEV_MODE}
 VITE_STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY:-}
 VITE_APP_VERSION=v${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD_NUMBER}
+
+# Store gate — written from settings.*.txt (edit there, not here)
+PUBLIC_STORE_LOCKED=${PUBLIC_STORE_LOCKED:-false}
+PUBLIC_STORE_PASSWORD=${PUBLIC_STORE_PASSWORD:-}
 EOF
 
-# Re-append any preserved non-VITE_ content (Shopify credentials etc.)
+# Re-append preserved non-VITE_ content (Shopify credentials etc.)
 if [[ -n "${_PRESERVED}" ]]; then
   echo "" >> "${FRONTEND_ENV}"
   echo "${_PRESERVED}" >> "${FRONTEND_ENV}"

@@ -51,12 +51,13 @@ buyflorabella/
 
 ## Port Assignments
 
-| Service               | Port  | Notes                                         |
-|-----------------------|-------|-----------------------------------------------|
-| Dev frontend          | 15220 | `frontend.dev.buyflorabella.boardmansgame.com` |
-| Dev backend (Flask)   | 15221 | `admin.dev.buyflorabella.boardmansgame.com`   |
-| Prod frontend         | 20220 | `buyflorabella.boardmansgame.com`              |
-| Prod backend (Flask)  | 20221 | `admin.buyflorabella.boardmansgame.com`       |
+| Service                    | Port  | Notes                                              |
+|----------------------------|-------|----------------------------------------------------|
+| Dev frontend (dev server)  | 15220 | `frontend.dev.buyflorabella.boardmansgame.com`     |
+| Dev backend (Flask)        | 15221 | `admin.dev.buyflorabella.boardmansgame.com`        |
+| Prod frontend (dev server) | 20220 | `frontend.buyflorabella.boardmansgame.com`         |
+| Prod frontend (built SPA)  | —     | `buyflorabella.boardmansgame.com` (Apache DocumentRoot, no port) |
+| Prod backend (Flask)       | 20221 | `admin.buyflorabella.boardmansgame.com`            |
 
 Server-wide ports and Apache conventions are in `~/.claude/CLAUDE.md`.
 
