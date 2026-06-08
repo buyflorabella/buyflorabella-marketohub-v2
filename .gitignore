@@ -1,6 +1,6 @@
 # Settings files contain secrets — never commit
-script/settings.dev.txt
-script/settings.prod.txt
+#script/settings.dev.txt
+#script/settings.prod.txt
 
 # Hydrogen frontend — node_modules and env
 frontend/node_modules/

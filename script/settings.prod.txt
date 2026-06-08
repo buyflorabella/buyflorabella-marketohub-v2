@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# buyflorabella — PRODUCTION settings
+# Fill all values before deploying. Do NOT commit real secrets to git.
+# Sourced automatically by script/ when running from the prod/ worktree.
+
+# --- Ports ---
+BACKEND_PORT=20221
+FRONTEND_PORT=20220
+
+# --- Backend ---
+BACKEND_DIR="backend"
+BACKEND_HOST="127.0.0.1"
+BACKEND_APP_SCRIPT="app"
+PYTHON_BIN="python3"
+WORKERS=3
+
+# --- Frontend ---
+FRONTEND_DIR="frontend"
+FRONTEND_HOST="localhost"
+FRONTEND_PUBLIC_URL="https://buyflorabella.boardmansgame.com"
+FRONTEND_SPA_SERVE_PATH="/var/www/html/buyflorabella/prod/frontend/build"
+
+# --- Logging ---
+LOG_LEVEL="INFO"
+PYMONGO_DEBUG="false"
+
+# --- Environment ---
+ENV="production"
+DEBUG="false"
+NODE_ENV="production"
+SERVER_ID="buyflorabella"
+DEV_SLOT=
+
+# --- Secrets ---
+FLASK_SECRET_KEY="${FLASK_SECRET_KEY:-}"
+
+# --- Deploy (systemd) ---
+SITE_NAME="buyflorabella"
+GUNICORN_USER="apache"
+GUNICORN_GROUP="apache"
+
+# --- Domains ---
+BASE_DOMAIN=buyflorabella.boardmansgame.com
+ADMIN_DOMAIN=admin.buyflorabella.boardmansgame.com
+FRONTEND_DOMAIN=buyflorabella.boardmansgame.com
+API_DOMAIN="admin.buyflorabella.boardmansgame.com"
+
+# --- API base URL ---
+API_BASE_URL="https://admin.buyflorabella.boardmansgame.com"
+
+# --- Admin panel URL ---
+ADMIN_URL="https://admin.buyflorabella.boardmansgame.com/admin/"
+
+# --- Frontend public URL ---
+FRONTEND_URL="https://buyflorabella.boardmansgame.com"
+GITHUB_DEPLOY_KEY="/home/dxb/.ssh/buyflorabella_github_deploy"
+
+# --- CORS ---
+ALLOWED_CORS_DOMAINS=".boardmansgame.com"
+
+# --- Session cookie domain (covers frontend + admin subdomains) ---
+SESSION_COOKIE_DOMAIN=.buyflorabella.boardmansgame.com
+
+# --- Site access ---
+SITE_ACCESS_MODE="open"
+SITE_PASSWORD=""
+MAINTENANCE_TARGET_UTC=""
+
+# --- OTP ---
+OTP_DEV_MODE="false"
+OTP_RATE_LIMIT_ENABLED="true"
+
+# --- SMTP ---
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="${SMTP_USER:-}"
+SMTP_PASS="${SMTP_PASS:-}"
+NOTIFICATION_EMAIL=""
+
+# --- Super admin ---
+ADMIN_EMAIL="admin@buyflorabella.com"
+ADMIN_PASSWORD="abc"
+RESET_ADMIN_CREDENTIALS="false"
+
+# --- ArcadeStore ---
+ARCADESTORE_ENDPOINT=""
+ARCADESTORE_SITE_TOKEN="${ARCADESTORE_SITE_TOKEN:-}"
+
+# --- Analytics ---
+GA_MEASUREMENT_ID=""
+CLARITY_PROJECT_ID=""
+
+# --- Stripe ---
+STRIPE_PUBLISHABLE_KEY="${STRIPE_PUBLISHABLE_KEY:-}"
+STRIPE_SECRET_KEY="${STRIPE_SECRET_KEY:-}"
+STRIPE_WEBHOOK_SECRET="${STRIPE_WEBHOOK_SECRET:-}"
+STRIPE_PRICE_BASIC="${STRIPE_PRICE_BASIC:-}"
+STRIPE_PRICE_ADVANCED="${STRIPE_PRICE_ADVANCED:-}"
+STRIPE_PRICE_PREMIUM="${STRIPE_PRICE_PREMIUM:-}"
+STRIPE_PRICE_ULTIMATE="${STRIPE_PRICE_ULTIMATE:-}"
+
+# --- MongoDB ---
+MONGO_URI="mongodb://localhost:27028/buyflorabella"
+
+# --- SMAC data paths ---
+SMAC_DATA_ROOT=""
+SWIZZLES_PATH=""
+INPUT_FILES_PATH=""
+SOUNDFONT_PATH=""
+AUDIO_OUTPUT_DIR=""
+CODE_TO_INTEGRATE_PATH=""
+
+# --- Cron / webhooks ---
+CRON_SECRET="${CRON_SECRET:-}"
+
+# --- Version ---
+VERSION_MAJOR="1"
+VERSION_MINOR="30"
+VERSION_BUILD_NUMBER="0"
