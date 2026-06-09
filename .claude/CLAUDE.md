@@ -204,3 +204,16 @@ a permanent `claude_docs/build_docs/taskN_outcome.md`.
 - Never edit `prod/` directly — use `update-production.sh` only.
 - Hydrogen OAuth callback URLs must be registered in Shopify Partner dashboard when new domains are added.
 - Task 3 Design Doc (`claude_docs/build_docs/task3_design_doc.md`) defines the forward architecture plan — read it before starting any Hydrogen modernization work.
+
+## Contracts — Check Before Changing These
+
+Any time you are about to modify ports, domains, `.env` vars, `settings.*.txt`, `generate-env.sh`,
+Apache vhosts, or systemd services — **read the relevant contract first**:
+
+| What you're touching | Contract to read |
+|----------------------|-----------------|
+| Ports, domains, SSL certs, vhost files | `contracts/port-domain-contract.md` |
+| Secrets, `.env` vars, `settings.*.txt`, `generate-env.sh` | `contracts/secrets-deployment-contract.md` |
+
+If your change violates a contract, either fix the violation or propose a contract update before
+proceeding. Both contracts are in `dev/contracts/` (the git-tracked canonical location).

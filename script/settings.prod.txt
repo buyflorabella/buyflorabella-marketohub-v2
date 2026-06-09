@@ -42,7 +42,8 @@ GUNICORN_GROUP="apache"
 # --- Domains ---
 BASE_DOMAIN=buyflorabella.boardmansgame.com
 ADMIN_DOMAIN=admin.buyflorabella.boardmansgame.com
-FRONTEND_DOMAIN=buyflorabella.boardmansgame.com
+FRONTEND_DOMAIN=frontend.buyflorabella.boardmansgame.com
+SPA_DOMAIN=buyflorabella.boardmansgame.com
 API_DOMAIN="admin.buyflorabella.boardmansgame.com"
 
 # --- API base URL ---
@@ -60,6 +61,10 @@ ALLOWED_CORS_DOMAINS=".boardmansgame.com"
 
 # --- Session cookie domain (covers frontend + admin subdomains) ---
 SESSION_COOKIE_DOMAIN=.buyflorabella.boardmansgame.com
+
+# --- Store gate (written to frontend/.env by generate-env.sh) ---
+PUBLIC_STORE_LOCKED=false
+PUBLIC_STORE_PASSWORD=012526
 
 # --- Site access ---
 SITE_ACCESS_MODE="open"

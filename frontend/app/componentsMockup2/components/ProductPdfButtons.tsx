@@ -57,31 +57,7 @@ export default function ProductPdfButtons() {
           We are excited to introduce two new <span className="font-bold">amazing</span> products this June!
         </p>
         
-        {/* Pre-order button wrapper with gradient border */}
-        <div className="relative w-full max-w-[720px] group">
-
-          {/* glowing gradient border layer */}
-          <div className="absolute -inset-[2px] rounded-lg bg-gradient-to-r from-[#d4ff00] via-[#ffea00] to-[#d4ff00] blur-[1px] opacity-80 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-          {/* actual button */}
-          <a
-            href={preOrderLink}
-            className="
-              relative block w-full px-8 py-5 rounded-lg
-              text-center font-extrabold uppercase tracking-widest text-sm
-              text-[#d4ff00]
-
-              bg-[linear-gradient(30deg,#a855f7,#7c3aed,#4c1d95)]
-              animate-pulse
-
-              transition-all duration-300
-              hover:scale-105 active:scale-95
-            "
-          >
-            PRE-ORDER NOW!
-          </a>
-
-        </div>
+       
       </div>
     </section>
   );
